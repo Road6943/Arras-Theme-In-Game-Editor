@@ -1,0 +1,214 @@
+<!-- Vue.js -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+
+<!-- Color Picker -->
+<script src="https://cdn.jsdelivr.net/npm/verte"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css">
+
+<script>
+// this is what you get from typing Arras() into the console (in game, with default settings I think)
+function Arras() {
+    return (
+        {"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeBoost":1,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false},"themeColor":{"table":["#7adbbc","#b9e87e","#e7896d","#fdf380","#b58efd","#ef99c3","#e8ebf7","#aa9f9e","#ffffff","#484848","#3ca4cb","#8abc3f","#e03e41","#efc74b","#8d6adf","#cc669c","#a7a7af","#726f6f","#dbdbdb","#000000"],"border":0.6509803921568628}}
+    )
+}
+</script>
+
+
+<!--START COPY AND PASTING INTO USERSCRIPT BELOW THIS LINE ONLY-->
+
+<div id="main-container">
+
+    {{ /* REMOVE THIS FROM FINAL USERSCRIPT */ JSON.stringify(config) }}
+
+    <br>
+    <button id="toggle-btn" @click="showPanel = !showPanel">
+        {{ showPanel ? "Close Panel" : "Open Panel" }}
+    </button>
+
+    <div id="panel" v-if="showPanel"> <!-- v-show is faster for toggling than v-if because v-show just changes css instead of re-rendering everything. However, v-show messes with the color picker's css and you need to click on the box, and then the slider to get the color picker to function properly again. So I'm using v-if for now -->
+        <div id="graphical-container">
+            <table>
+                <th colspan=2>
+                    Edit Graphical Properties
+                </th>
+
+                <!-- in Vue, key,val is reversed to val,key -->
+                <tr v-for="(val,key) in config.graphical" @change="renderChange('graphical', key)">
+                    <td>
+                        {{ key }}
+                    </td>
+
+                    <!-- use the type of the value to determine the type of input selector :: typeof won't work because Vue represents numbers as strings -->
+                    <td v-if="getType(val) === 'number' ">
+                        <input type="number" v-model.number="config.graphical[key]">
+                    </td>
+
+                    <td v-else-if="getType(val) === 'boolean' ">
+                        <label>true:</label>
+                        <input type="radio" :name="key" :value="true" v-model="config.graphical[key]">
+
+                        <label>false:</label>
+                        <input type="radio" :name="key" :value="false" v-model="config.graphical[key]">
+                    </td>
+
+                    <td v-else>
+                        <!-- This means that the type of one of the graphical properties was not recognized by this.getType() -->
+                        <strong>:( This is broken. Please ping Road#6943 in Discord to fix this. ):</strong>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="themeColor-container">
+            <table>
+                <th>
+                    Edit Theme
+                </th>
+
+                <tr>
+                    <td>
+                        border
+                    </td>
+                    <td>
+                        <input type="number" v-model.number="config.themeColor.border" @change="renderChange('themeColor', 'border')">
+                    </td>
+                </tr>
+
+                <tr v-for="[ description, colorName ] in colorDescriptions" >
+                    <td>
+                        <verte picker="square" model="hex" draggable="false"
+                                v-model="config.themeColor.table[ colorNames.indexOf(colorName) ]"
+                                @input="renderChange('themeColor', 'table', colorName) "
+                        ></verte>
+                    </td>
+                    <td>
+                        {{ description }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script>
+
+// only start script on load to prevent Vue from going haywire
+window.addEventListener("load", event => {
+
+    var app = new Vue({
+        el: "#main-container",
+
+        data: {
+            showPanel: false,
+            config: Arras(),
+            // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
+            colorNames: ["teal","lgreen","orange","yellow","lavender","pink","vlgrey","lgrey","guiwhite","black","blue","green","red","gold","purple","magenta","grey","dgrey","white","guiblack"],
+            colorDescriptions: [
+                /* "Utility" stuff, not sure how to describe these */
+                /* Borders -- at top since the border size selector is right above the color selectors */
+                ["Borders.\nText Outlines.\nHealth Bar Background."
+                    , "black"],
+                ["Map Background"
+                    , "white"],
+                ["Text Color"
+                    , "guiwhite"],
+                
+                /* Teams */
+                ["Your tank in FFA.\nLeft team in 2TDM.\nTop left team in 4TDM." 
+                    , "blue"],
+                ["Enemy tanks in FFA.\nBottom left team in 4TDM."
+                    , "red"],
+                ["Right team in 2TDM.\nTop right team in 4TDM.\nScore Bar."
+                    , "green"],
+                ["Bottom right team in 4TDM."
+                    , "magenta"],
+                
+                /* Shapes */
+                ["Rocks\nBarrels\nBar Backgrounds"
+                    , "grey"],
+                ["Squares\nLevel Bar"
+                    , "gold"],
+                ["Triangles"
+                    , "orange"],
+                ["Pentagons"
+                    , "purple"],
+                ["Crashers"
+                    , "pink"],
+                ["Eggs"
+                    , "vlgrey"],
+
+                /* Bars under tanks/shapes/bosses/etc... */
+                ["Main Health Bar"
+                    , "lgreen"],
+                ["Shield/Regen Bar"
+                    , "teal"],
+
+                /* Not sure what these do, plz help */
+                ["<< YELLOW >>## Bullet Penetration Stat? ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
+                    , "yellow"],
+                ["<< LAVENDER >>## Pentagon Nest Background if Enabled? ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
+                    , "lavender"],
+                ["<< LIGHT_GREY >>## Absolutely No Idea What This Does ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
+                    , "lgrey"],
+                ["<< DARK_GREY >>## Smasher Upgrade Color? ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
+                    , "dgrey"],
+                ["<< GUI_BLACK >>## Map Border Color? But it screws up if you keep changing it? ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
+                    , "guiblack"],
+            ],
+        },
+
+        methods: {
+            // this is needed because vue converts everything into a string once you change a value
+            // so the typeof operator won't work
+            getType(val) {
+                val = val.toString();
+                if (val === "true" || val === "false") {
+                    return "boolean";
+                }
+                if (!isNaN(val)) {
+                    return "number";
+                }
+                if (val[0] === "#") {
+                    return "color";
+                }
+            },
+
+            // category is stuff like "graphical" or "themeColor"
+            // property is the actual property that was changed, like "barChunk" or "table"
+            // changedColor is something like "teal" and is only used for changes to themeColor.table
+            renderChange(changedCategory, changedProperty, changedColor) {
+                // only for changes to the themeColor.table array
+                // border is handled like the other stuff in graphical
+                if (changedCategory === "themeColor" && changedProperty === "table" && changedColor) {
+                    var index = this.colorNames.indexOf(changedColor);
+
+                    console.log(changedColor + ' was changed to:')
+                    console.log(this.config.themeColor.table[index])
+                }
+                // everything else, including themeColor.border
+                else {
+                    console.log(changedCategory + "." + changedProperty)
+                    console.log(this.config[changedCategory][changedProperty])
+                }
+            },
+        },
+
+        components: { Verte },
+    });
+
+});
+
+</script>
+
+<style>
+    /* #main-container {
+        height: 70%;
+    }
+    #panel {
+        max-height: 50%;
+        overflow-y: scroll;
+    } */
+</style>
