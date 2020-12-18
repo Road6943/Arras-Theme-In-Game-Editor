@@ -9,7 +9,36 @@
 // this is what you get from typing Arras() into the console (in game, with default settings I think)
 function Arras() {
     return (
-        {"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeBoost":1,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false},"themeColor":{"table":["#7adbbc","#b9e87e","#e7896d","#fdf380","#b58efd","#ef99c3","#e8ebf7","#aa9f9e","#ffffff","#484848","#3ca4cb","#8abc3f","#e03e41","#efc74b","#8d6adf","#cc669c","#a7a7af","#726f6f","#dbdbdb","#000000"],"border":0.6509803921568628}}
+        {
+  graphical: {
+    screenshotMode: false,
+    borderChunk: 6,
+    barChunk: 5,
+    compensationScale: 1.114,
+    lowGraphics: false,
+    alphaAnimations: true,
+    inversedRender: true,
+    miterStars: true,
+    miter: false,
+    fontSizeOffset: 0,
+    shieldbars: false,
+    renderGrid: true,
+    darkBorders: false,
+    neon: false
+  },
+  themeColor: {
+    table: [
+      '#7adbbc', '#b9e87e', '#e7896d',
+      '#fdf380', '#b58efd', '#ef99c3',
+      '#e8ebf7', '#aa9f9e', '#ffffff',
+      '#484848', '#3ca4cb', '#8abc3f',
+      '#e03e41', '#efc74b', '#8d6adf',
+      '#cc669c', '#a7a7af', '#726f6f',
+      '#dbdbdb', '#000000'
+    ],
+    border: 0.6509803921568628
+  }
+}
     )
 }
 </script>
@@ -29,9 +58,11 @@ function Arras() {
     <div id="panel" v-if="showPanel"> <!-- v-show is faster for toggling than v-if because v-show just changes css instead of re-rendering everything. However, v-show messes with the color picker's css and you need to click on the box, and then the slider to get the color picker to function properly again. So I'm using v-if for now -->
         <div id="graphical-container">
             <table>
-                <th colspan=2>
-                    Edit Graphical Properties
-                </th>
+                <thead>
+                    <th colspan=2>
+                        Edit Graphical Properties
+                    </th>
+                </thead>
 
                 <!-- in Vue, key,val is reversed to val,key -->
                 <tr v-for="(val,key) in config.graphical" @change="renderChange('graphical', key)">
@@ -57,15 +88,16 @@ function Arras() {
                         <strong>:( This is broken. Please ping Road#6943 in Discord to fix this. ):</strong>
                     </td>
                 </tr>
+                <tfoot>
+                    <th colspan="2"> <!-- Putting this here instead of correctly in the next table because I think it looks nicer this way -->
+                        Edit Theme
+                    </th>
+                </tfoot>
             </table>
         </div>
 
         <div id="themeColor-container">
             <table>
-                <th>
-                    Edit Theme
-                </th>
-
                 <tr>
                     <td>
                         border
@@ -76,12 +108,20 @@ function Arras() {
                 </tr>
 
                 <tr v-for="[ description, colorName ] in colorDescriptions" >
+                    
+                    <!-- A "dummy" column, so that the color picker doesn't flow out of the main-container -->
+                    <td class="dummy-column">
+                        {{ getHex(colorName) }}
+                    </td>
+
                     <td>
-                        <verte picker="square" model="hex" draggable="false"
+                        <!-- Why won't menuPosition="right" work!!! -->
+                        <verte picker="square" model="hex" menuPosition="right"
                                 v-model="config.themeColor.table[ colorNames.indexOf(colorName) ]"
                                 @input="renderChange('themeColor', 'table', colorName) "
                         ></verte>
                     </td>
+
                     <td>
                         {{ description }}
                     </td>
@@ -109,7 +149,7 @@ window.addEventListener("load", event => {
             colorDescriptions: [
                 /* "Utility" stuff, not sure how to describe these */
                 /* Borders -- at top since the border size selector is right above the color selectors */
-                ["Borders.\nText Outlines.\nHealth Bar Background."
+                ["Borders, Text Outlines, Health Bar Background"
                     , "black"],
                 ["Map Background"
                     , "white"],
@@ -117,19 +157,19 @@ window.addEventListener("load", event => {
                     , "guiwhite"],
                 
                 /* Teams */
-                ["Your tank in FFA.\nLeft team in 2TDM.\nTop left team in 4TDM." 
+                ["Your tank in FFA, Left team in 2TDM, Top left team in 4TDM" 
                     , "blue"],
-                ["Enemy tanks in FFA.\nBottom left team in 4TDM."
+                ["Enemy tanks in FFA, Bottom left team in 4TDM"
                     , "red"],
-                ["Right team in 2TDM.\nTop right team in 4TDM.\nScore Bar."
+                ["Right team in 2TDM, Top right team in 4TDM, Score Bar"
                     , "green"],
-                ["Bottom right team in 4TDM."
+                ["Bottom right team in 4TDM"
                     , "magenta"],
                 
                 /* Shapes */
-                ["Rocks\nBarrels\nBar Backgrounds"
+                ["Rocks, Barrels, Bar Backgrounds"
                     , "grey"],
-                ["Squares\nLevel Bar"
+                ["Squares, Level Bar"
                     , "gold"],
                 ["Triangles"
                     , "orange"],
@@ -194,6 +234,11 @@ window.addEventListener("load", event => {
                     console.log(this.config[changedCategory][changedProperty])
                 }
             },
+
+            // get the hexadecimal (#abc123) value for the given colorName in the themeColor table
+            getHex(colorName) {
+                return this.config.themeColor.table[ this.colorNames.indexOf(colorName) ];
+            },
         },
 
         components: { Verte },
@@ -204,11 +249,36 @@ window.addEventListener("load", event => {
 </script>
 
 <style>
-    /* #main-container {
-        height: 70%;
+    /* These make sure the panel doesn't take up the whole screen
+    ** and instead stays in a nice neat tiny box */
+    html,body {
+        height: 100%;
+        width: 100%;
+    }
+    #main-container {
+        height: 100%;
+        width: 100%;
     }
     #panel {
-        max-height: 50%;
+        height: 50%;
         overflow-y: scroll;
+
+        width: 30%;
+        overflow-x: scroll;
+
+
+    }
+
+    /* Moves scrollbar to left side */
+    /* #panel {
+        direction: rtl;
+    }
+    #panel * {
+        direction: ltr;
     } */
+
+    /* dummy column adds space for the color picker to fully expand into */
+    td.dummy-column {
+        width: 75px;
+    }
 </style>
