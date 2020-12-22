@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         [TI-GEr] Theme In-Game Editor for Arras.io
+// @name         [TI-GEr Prototype] Theme In-Game Editor for Arras.io Prototype
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      1.0
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
 // @author       You
 // @match        https://arras.io
