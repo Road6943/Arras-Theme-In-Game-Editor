@@ -12,6 +12,21 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
+
+/*
+**
+*** TODO:
+<!-- INSTEAD OF THIS (new table for gui), MAKE A FUNCTION THAT GENERATES SOMETHING IDENTICAL TO WHAT GRAPHICAL ALREADY HAS, OR USE LOOP FOR ALL OF CONFIG PROPERTIES OTHER THAN THEME_COLOR -->
+++ split stuff into separate files & make script to combine them into single userscript file (create a build process)
+++ record to only use toggle button, or only hotkey
+---- current setup allows new instances of editor to be created when hotkey is pressed again
+++ change data structure (make colorNames & colorDescr same thing, with array of objects)
+***
+**
+*/
+
+
+
 /* All CSS is at bottom of this file */
 
 /* IMPORTANT NOTE: use single quotes (') for the majority of stuff as they won't interfere with
@@ -86,6 +101,10 @@ function getAppHTMLAndCSS() {
     </button>
 
     <div id="panel" v-if="showPanel"> <!-- v-show is faster for toggling than v-if because v-show just changes css instead of re-rendering everything. However, v-show messes with the color picker's css and you need to click on the box, and then the slider to get the color picker to function properly again. So I'm using v-if for now -->
+        <div id="gui-container">
+            <!-- INSTEAD OF THIS, MAKE A FUNCTION THAT GENERATES SOMETHING IDENTICAL TO WHAT GRAPHICAL ALREADY HAS, OR USE LOOP FOR ALL OF CONFIG PROPERTIES OTHER THAN THEME_COLOR -->
+        </div>
+
         <div id="graphical-container">
             <table>
                 <thead>
@@ -132,7 +151,7 @@ function getAppHTMLAndCSS() {
                     <td>
                         border
                     </td>
-                    <td>
+                    <td colspan="2" >
                         <input type="number" v-model.number="config.themeColor.border" @change="renderChange('themeColor', 'border')">
                     </td>
                 </tr>
@@ -169,28 +188,20 @@ function getAppHTMLAndCSS() {
         width: 100%;
     }
     #main-container {
-        height: 100%;
-        width: 100%;
+        height: 25%;
+        width: 30%;
     }
     #panel {
-        height: 50%;
+        height: 100%;
         overflow-y: scroll;
 
-        width: 30%;
+        width: 100%;
         overflow-x: scroll;
     }
 
-    /* Moves scrollbar to left side */
-    /* #panel {
-        direction: rtl;
-    }
-    #panel * {
-        direction: ltr;
-    } */
-
     /* dummy column adds space for the color picker to fully expand into */
     td.dummy-column {
-        width: 75px;
+        width: 100px;
     }
 
     /* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
@@ -204,7 +215,9 @@ function getAppHTMLAndCSS() {
     table, th, td {
         border: 1px solid black;
         border-collapse: collapse;
+        padding: 10px;
     }
+
 </style>
 
 `}
