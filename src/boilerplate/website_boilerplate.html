@@ -1,0 +1,69 @@
+<!--
+    This file exists to help with faster development of the userscript (I can watch my changes take effect in real-time)
+        instead of having to reload Arras and go in game and launch the editor
+
+    This html file will import in the various other html/css/js files that make the editor work, just like the builder script does
+        , but instead will create a website, not a userscript, from those same files
+-->
+
+<!--START From the original index.html file START-->
+
+
+<!-- This file is helpful for rapidly testing ui changes without having to deal with reloading the userscript and going in game to test it out every time -->
+<!-- KEEP IN MIND THAT THIS HTML FILE WILL NOT LOOK IDENTICAL, or even that close stying-wise, TO THE ACTUAL GAME VERSION DUE TO ARRAS's OWN CSS STYLING INTERFERING -->
+
+<!-- Vue.js -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+
+<!-- Color Picker -->
+<script src="https://cdn.jsdelivr.net/npm/verte"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css">
+
+<!-- Verte-related indicates a fix done because of a problem with the Verte color picker, if I ever want to replace it with a different color picker, this stuff can be modified, if not outright removed-->
+<!-- look into these color pickers later: 
+https://bgrins.github.io/spectrum/ 
+https://caohenghu.github.io/vue-colorpicker/
+https://vue-accessible-color-picker.netlify.app/
+-->
+
+<script>
+// this is what you get from typing Arras() into the console (in game, with default settings I think)
+// this function replicates the output from the userscript's console stuff for website.html since it cannot access Arras's console
+function Arras() {
+    return (
+        {
+  graphical: {
+    screenshotMode: false,
+    borderChunk: 6,
+    barChunk: 5,
+    compensationScale: 1.114,
+    lowGraphics: false,
+    alphaAnimations: true,
+    inversedRender: true,
+    miterStars: true,
+    miter: false,
+    fontSizeOffset: 0,
+    shieldbars: false,
+    renderGrid: true,
+    darkBorders: false,
+    neon: false
+  },
+  gui: { enabled: true, alcoveSize: 200, spacing: 20 },
+  themeColor: {
+    table: [
+      '#7adbbc', '#b9e87e', '#e7896d',
+      '#fdf380', '#b58efd', '#ef99c3',
+      '#e8ebf7', '#aa9f9e', '#ffffff',
+      '#484848', '#3ca4cb', '#8abc3f',
+      '#e03e41', '#efc74b', '#8d6adf',
+      '#cc669c', '#a7a7af', '#726f6f',
+      '#dbdbdb', '#000000'
+    ],
+    border: 0.6509803921568628
+  }
+}
+    )
+}
+</script>
+
+<!--END From the original index.html file END-->
