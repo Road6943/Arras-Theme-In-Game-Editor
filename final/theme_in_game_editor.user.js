@@ -124,10 +124,12 @@ function getAppHTMLAndCSS() {
     This file contains the html (vue-template html) for the main editor
  -->
 
-<div id="main-container">
+<div id="main-container" 
+    :style="[showEditor ? {'backgroundColor': '#0001'} : {'backgroundColor': 'transparent'}]"
+> <!-- main-container when open gets a bg color of #0001 (not a typo) so that its styling like table borders appear no matter which color the map bg is -->
 
     <button id="toggle-btn" @click="showEditor = !showEditor">
-        {{ showEditor ? "Close Editor" : "Open Editor" }}
+        🐅 {{ showEditor ? "Close" : "Open" }} 🐅
     </button>
 
     <div id="editor" v-show="showEditor">
@@ -240,10 +242,14 @@ td.dummy-column {
     width: 100px;
 }
 
+/* makes number inputs and toggle button transparent */
+#main-container input[type="number"], #toggle-btn {
+    background-color:transparent;
+}
 /* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
 /* from https://stackoverflow.com/a/57465026 */
 /* also making all text bold and Ubuntu, so its easier to see */
-#main-container, #main-container input[type="number"] {
+#main-container, #main-container input[type="number"], #toggle-btn {
     text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
     color: white;
     
@@ -261,15 +267,6 @@ table, th, td {
 /* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
 #main-container input[type="radio"] {
     width: auto;
-}
-
-/* makes main container background partially transparent, so its easier to see items even when map bg changes */
-#main-container {
-    background-color:  #0001; /* NOT a typo, this is to create a (nearly transparent) background */
-}
-/* makes number input background color transparent */
-#main-container input[type="number"] {
-    background-color:transparent;
 }
 
     </style>
