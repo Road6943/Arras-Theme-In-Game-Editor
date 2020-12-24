@@ -4,7 +4,8 @@
 // @version      1.0
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
 // @author       You
-// @match        https://arras.io
+// @match        *://arras.netlify.app/
+// @match        *://arras.io/
 // @require      https://cdn.jsdelivr.net/npm/vue@2.6.12
 // @require      https://cdn.jsdelivr.net/npm/verte
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
@@ -35,22 +36,23 @@ var LAUNCH_KEY = '|';
 (function() {
     'use strict';
 
-    window.addEventListener('load', () => {
-        //main(); // delete this and uncomment the below stuff later
+    window.addEventListener('keydown', (event) => {
+        if (event.key !== LAUNCH_KEY) {
+            return;
+        }
 
-        window.addEventListener('keydown', (event) => {
-            if (event.key !== LAUNCH_KEY || !userIsCurrentlyInGame()) {
-                return;
-            }
-
-            main();
-        });
-
+        launchApp();
     });
 })();
 
 
-function main() {
+// launch the main editor app only if user is in-game (so that the themeColor stuff is actually availiable to grab)
+// also destroy the initial launch-btn at the end of this function because it is no longer needed and is replaced with toggle-btn inside the main Vue app
+function launchApp() {
+  if (!userIsCurrentlyInGame()) {
+    alert('You must be in-game to use this!');
+    return;
+  }
   // something in arras's default css styling screws with the top color picker
   // by making it be too wide and overflow from the color picker container
   // so this removes all existing css for just that top slider, so that only Verte's css can style it
@@ -66,30 +68,6 @@ function main() {
   canvas.insertAdjacentHTML('beforebegin', getAppHTMLAndCSS());
   runAppJS();
 }
-
-
-// launch the main editor app only if user is in-game (so that the themeColor stuff is actually availiable to grab)
-// also destroy the initial launch-btn at the end of this function because it is no longer needed and is replaced with toggle-btn inside the main Vue app
-// function launchApp() {
-//   if (!userIsCurrentlyInGame()) {
-//     alert('You must be in-game to use this!');
-//     return;
-//   }
-//   // something in arras's default css styling screws with the top color picker
-//   // by making it be too wide and overflow from the color picker container
-//   // so this removes all existing css for just that top slider, so that only Verte's css can style it
-//   // the width:85% thing is something that I used before to make the slider look correct,
-//   // but it screwed with the functionality somewhat so I removed it
-//   /* Verte-related */
-//   GM_addStyle( '.verte-picker__slider { all: unset;        /* width: 85%; */ }' );
-//   // add verte css file (color picker styling)
-//   GM_addStyle( GM_getResourceText("VERTE_CSS") );
-
-//   var canvas = document.querySelector('#' + CANVAS_ID);
-//   canvas.insertAdjacentHTML('beforebegin', '<style>' + getUserscriptSpecificCSS() + '</style>');
-//   canvas.insertAdjacentHTML('beforebegin', getAppHTMLAndCSS());
-//   runAppJS();
-// }
 
 
 // a little hack to detect if the user is currently in game or on the main landing page
