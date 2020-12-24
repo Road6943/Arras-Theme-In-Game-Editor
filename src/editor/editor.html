@@ -19,7 +19,9 @@
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner 
     This is why we use the v-bind:style for this -->
 
-    <button id="toggle-btn" @click="showEditor = !showEditor">
+    <button id="toggle-btn" class="editor-btn"
+        @click="showEditor = !showEditor"
+    >
         🐅 {{ showEditor ? "Close" : "Open" }} 🐅
     </button>
 

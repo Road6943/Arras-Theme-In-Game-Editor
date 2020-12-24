@@ -31,18 +31,27 @@
 ** Arras() function is what allows this whole thing to work -- gives current theme values and allows you to set new ones */
 var CONTAINER_ID = 'main-container';
 var CANVAS_ID = 'canvas';
-var LAUNCH_KEY = '|';
+var LAUNCH_BTN_ID = 'launch-btn';
 
 (function() {
     'use strict';
 
-    window.addEventListener('keydown', (event) => {
-        if (event.key !== LAUNCH_KEY) {
-            return;
-        }
+    // add these css files at the start so that the launch btn can be styled and positioned above canvas from the very start
+    // Verte css stuff can't go here because it screws with the Arras landing page styling
+    GM_addStyle( getUserscriptSpecificCSS() ); // positions items above canvas
+    GM_addStyle( getAppCSS() ); // adds styling for the majority of the Vue app's ui
 
-        launchApp();
-    });
+    var canvas = document.getElementById(CANVAS_ID);
+
+    // add a launch button to launch the main Vue instance, it should look identical to the toggle-btn
+    // thanks to their shared .editor-btn class
+    canvas.insertAdjacentHTML('beforebegin', `
+      <button id="${LAUNCH_BTN_ID}" class="editor-btn">
+        🐅 Open 🐅
+      </button>
+    `);
+
+    document.getElementById(LAUNCH_BTN_ID).onclick = launchApp;
 })();
 
 
@@ -53,6 +62,11 @@ function launchApp() {
     alert('You must be in-game to use this!');
     return;
   }
+
+  // remove the launch button, so that the toggle-btn in the Vue instance can take over
+  // and also to prevent users from accidently creating multiple Vue instances through multiple clicks
+  document.getElementById(LAUNCH_BTN_ID).remove();
+
   // something in arras's default css styling screws with the top color picker
   // by making it be too wide and overflow from the color picker container
   // so this removes all existing css for just that top slider, so that only Verte's css can style it
@@ -60,12 +74,13 @@ function launchApp() {
   // but it screwed with the functionality somewhat so I removed it
   /* Verte-related */
   GM_addStyle( '.verte-picker__slider { all: unset;        /* width: 85%; */ }' );
+
   // add verte css file (color picker styling)
+  // Must go here (in-game only, never landing page) because it screws with the Arras landing page styling somehow
   GM_addStyle( GM_getResourceText("VERTE_CSS") );
 
-  var canvas = document.querySelector('#' + CANVAS_ID);
-  canvas.insertAdjacentHTML('beforebegin', '<style>' + getUserscriptSpecificCSS() + '</style>');
-  canvas.insertAdjacentHTML('beforebegin', getAppHTMLAndCSS());
+  var canvas = document.getElementById(CANVAS_ID);
+  canvas.insertAdjacentHTML('beforebegin', getAppHTML());
   runAppJS();
 }
 
@@ -73,7 +88,7 @@ function launchApp() {
 // a little hack to detect if the user is currently in game or on the main landing page
 function userIsCurrentlyInGame() {
   // playerNameInput is disabled in-game, but enabled on the main landing page (because thats how players enter their name)
-  return document.querySelector("#playerNameInput").hasAttribute("disabled");
+  return document.getElementById("playerNameInput").hasAttribute("disabled");
 }
 
 // this is css that allows the the userscript to properly show the editor above the game canvas
@@ -81,8 +96,8 @@ function userIsCurrentlyInGame() {
 function getUserscriptSpecificCSS() {
   return `
 
-/* These position the editor div directly above the canvas */
-#${CONTAINER_ID} {
+/* These position the launch button and editor div directly above the canvas */
+#${CONTAINER_ID}, #${LAUNCH_BTN_ID} {
   position: absolute;
   z-index: 2;
 }
@@ -94,10 +109,9 @@ function getUserscriptSpecificCSS() {
 `}
 
 
-// paste the vue js html & <style>css>/style> code into here, but NOT the script tag stuff
-function getAppHTMLAndCSS() {
-    return `
-
+// paste the vue js html code into here, but NOT the script tag stuff or the style tag stuff
+function getAppHTML() {
+  return `
     <!-- 
     This file contains the html (vue-template html) for the main editor
  -->
@@ -119,7 +133,9 @@ function getAppHTMLAndCSS() {
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner 
     This is why we use the v-bind:style for this -->
 
-    <button id="toggle-btn" @click="showEditor = !showEditor">
+    <button id="toggle-btn" class="editor-btn"
+        @click="showEditor = !showEditor"
+    >
         🐅 {{ showEditor ? "Close" : "Open" }} 🐅
     </button>
 
@@ -203,9 +219,12 @@ function getAppHTMLAndCSS() {
     </div>
 </div>
 
-    
-    <style>
-      /*
+  `
+}
+
+function getAppCSS() {
+  return `
+    /*
     This file contains the css (non-userscript specific or library-imported) that makes the editor appear and then look presentable
 */
 
@@ -236,14 +255,14 @@ td.dummy-column {
     width: 100px;
 }
 
-/* makes number inputs and toggle button transparent */
-#main-container input[type="number"], #toggle-btn {
+/* makes number inputs and editor buttons transparent */
+#main-container input[type="number"], .editor-btn {
     background-color:transparent;
 }
 /* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
 /* from https://stackoverflow.com/a/57465026 */
 /* also making all text bold and Ubuntu, so its easier to see */
-#main-container, #main-container input[type="number"], #toggle-btn {
+#main-container, #main-container input[type="number"], .editor-btn {
     text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
     color: white;
     
@@ -252,7 +271,9 @@ td.dummy-column {
 }
 
 /* makes the items more easy to visually separate from each other and the borders of the main-container */
-table, th, td {
+#main-container table, 
+#main-container th, 
+#main-container td {
     border: 1px solid white;
     border-collapse: collapse;
     padding: 10px;
@@ -263,8 +284,8 @@ table, th, td {
     width: auto;
 }
 
-    </style>
-`}
+  `
+}
 
 // paste the vue js <script> js </script> code into here
 function runAppJS() {
@@ -313,7 +334,7 @@ var app = new Vue({
                 , "purple"],
             ["Crashers"
                 , "pink"],
-            ["Eggs"
+            ["Eggs and Minimap Background"
                 , "vlgrey"],
 
             /* Bars under tanks/shapes/bosses/etc... */

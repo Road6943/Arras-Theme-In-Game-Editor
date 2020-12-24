@@ -42,7 +42,7 @@ var app = new Vue({
                 , "purple"],
             ["Crashers"
                 , "pink"],
-            ["Eggs"
+            ["Eggs and Minimap Background"
                 , "vlgrey"],
 
             /* Bars under tanks/shapes/bosses/etc... */
