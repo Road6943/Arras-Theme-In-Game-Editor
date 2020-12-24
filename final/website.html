@@ -140,8 +140,6 @@ function Arras() {
                     <!-- Verte-related -->
                     <td class="dummy-column">
                         {{ colorName }}
-                        <br>
-                        {{ getHex(colorName) }}
                     </td>
 
                     <td>
@@ -192,7 +190,7 @@ td.dummy-column {
 /* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
 /* from https://stackoverflow.com/a/57465026 */
 /* also making all text bold and Ubuntu, so its easier to see */
-#main-container {
+#main-container, #main-container input[type="number"] {
     text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
     color: white;
     
@@ -202,7 +200,7 @@ td.dummy-column {
 
 /* makes the items more easy to visually separate from each other and the borders of the main-container */
 table, th, td {
-    border: 1px solid black;
+    border: 1px solid white;
     border-collapse: collapse;
     padding: 10px;
 }
@@ -210,6 +208,15 @@ table, th, td {
 /* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
 #main-container input[type="radio"] {
     width: auto;
+}
+
+/* makes main container background partially transparent, so its easier to see items even when map bg changes */
+#main-container {
+    background-color:  #0001; /* NOT a typo, this is to create a (nearly transparent) background */
+}
+/* makes number input background color transparent */
+#main-container input[type="number"] {
+    background-color:transparent;
 }
  </style>
             <script> /*
