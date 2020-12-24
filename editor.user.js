@@ -16,11 +16,10 @@
 /*
 **
 *** TODO:
-<!-- INSTEAD OF THIS (new table for gui), MAKE A FUNCTION THAT GENERATES SOMETHING IDENTICAL TO WHAT GRAPHICAL ALREADY HAS, OR USE LOOP FOR ALL OF CONFIG PROPERTIES OTHER THAN THEME_COLOR -->
 ++ split stuff into separate files & make script to combine them into single userscript file (create a build process)
 ++ record to only use toggle button, or only hotkey
 ---- current setup allows new instances of editor to be created when hotkey is pressed again
-++ change data structure (make colorNames & colorDescr same thing, with array of objects)
+++ fix current color picker (Verte) or get better color picker (maybe Spectrum??, ) 
 ***
 **
 */
@@ -65,13 +64,31 @@ function main() {
 }
 
 
+// launch the main editor app only if user is in-game (so that the themeColor stuff is actually availiable to grab)
+// also destroy the initial launch-btn at the end of this function because it is no longer needed and is replaced with toggle-btn inside the main Vue app
+// function launchApp() {
+//   if (!userIsCurrentlyInGame()) {
+//     alert('You must be in-game to use this!');
+//     return;
+//   }
+
+//   // add verte css file (color picker styling)
+//   GM_addStyle( GM_getResourceText("VERTE_CSS") );
+
+//   var canvas = document.querySelector('#' + CANVAS_ID);
+//   canvas.insertAdjacentHTML('beforebegin', '<style>' + getUserscriptSpecificCSS() + '</style>');
+//   canvas.insertAdjacentHTML('beforebegin', getAppHTMLAndCSS());
+//   runAppJS();
+// }
+
+
 // a little hack to detect if the user is currently in game or on the main landing page
 function userIsCurrentlyInGame() {
   // playerNameInput is disabled in-game, but enabled on the main landing page (because thats how players enter their name)
   return document.querySelector("#playerNameInput").hasAttribute("disabled");
 }
 
-// this is css that allows the the userscript to properly show the panel above the game canvas
+// this is css that allows the the userscript to properly show the editor above the game canvas
 // and anything else that's not used for the actual app functionality (anything that wouldn't go into a codepen of the app)
 function getUserscriptSpecificCSS() {
   return `
@@ -96,57 +113,56 @@ function getAppHTMLAndCSS() {
 <div id="main-container">
 
 
-    <button id="toggle-btn" @click="showPanel = !showPanel">
-        {{ showPanel ? "Close Panel" : "Open Panel" }}
+    <button id="toggle-btn" @click="showEditor = !showEditor">
+        {{ showEditor ? "Close Editor" : "Open Editor" }}
     </button>
 
-    <div id="panel" v-if="showPanel"> <!-- v-show is faster for toggling than v-if because v-show just changes css instead of re-rendering everything. However, v-show messes with the color picker's css and you need to click on the box, and then the slider to get the color picker to function properly again. So I'm using v-if for now -->
-        <div id="gui-container">
-            <!-- INSTEAD OF THIS, MAKE A FUNCTION THAT GENERATES SOMETHING IDENTICAL TO WHAT GRAPHICAL ALREADY HAS, OR USE LOOP FOR ALL OF CONFIG PROPERTIES OTHER THAN THEME_COLOR -->
-        </div>
-
-        <div id="graphical-container">
+    <div id="editor" v-show="showEditor">
+        <div v-for="(_, category) in config" 
+            v-if="category !== 'themeColor' " 
+        > <!-- handle themeColor separately -->
             <table>
                 <thead>
-                    <th colspan=2>
-                        Edit Graphical Properties
+                    <th colspan="2" >
+                        Edit {{ category }}
                     </th>
                 </thead>
 
                 <!-- in Vue, key,val is reversed to val,key -->
-                <tr v-for="(val,key) in config.graphical" @change="renderChange('graphical', key)">
+                <tr v-for="(val,key) in config[category]" @change="renderChange(category, key)">
                     <td>
                         {{ key }}
                     </td>
 
                     <!-- use the type of the value to determine the type of input selector :: typeof won't work because Vue represents numbers as strings -->
                     <td v-if="getType(val) === 'number' ">
-                        <input type="number" v-model.number="config.graphical[key]">
+                        <input type="number" v-model.number="config[category][key]">
                     </td>
 
                     <td v-else-if="getType(val) === 'boolean' ">
                         <label>true:</label>
-                        <input type="radio" :name="key" :value="true" v-model="config.graphical[key]">
-
+                        <input type="radio" :name="key" :value="true" v-model="config[category][key]">
+                        <br>
                         <label>false:</label>
-                        <input type="radio" :name="key" :value="false" v-model="config.graphical[key]">
+                        <input type="radio" :name="key" :value="false" v-model="config[category][key]">
                     </td>
 
                     <td v-else>
-                        <!-- This means that the type of one of the graphical properties was not recognized by this.getType() -->
+                        <!-- This means that the type of one of the properties was not recognized by this.getType() -->
                         <strong>:( This is broken. Please ping Road#6943 in Discord to fix this. ):</strong>
                     </td>
                 </tr>
-                <tfoot>
-                    <th colspan="2"> <!-- Putting this here instead of correctly in the next table because I think it looks nicer this way -->
-                        Edit Theme
-                    </th>
-                </tfoot>
             </table>
         </div>
 
-        <div id="themeColor-container">
+        <div> <!-- themeColor is treated differently from other Arras() properties because color pickers need special attention (like the color descriptions, etc...) -->
             <table>
+                <thead>
+                    <th colspan="3" >
+                        Edit themeColor
+                    </th>
+                </thead>
+
                 <tr>
                     <td>
                         border
@@ -160,6 +176,8 @@ function getAppHTMLAndCSS() {
 
                     <!-- A "dummy" column, so that the color picker doesn't flow out of the main-container -->
                     <td class="dummy-column">
+                        {{ colorName }}
+                        <br>
                         {{ getHex(colorName) }}
                     </td>
 
@@ -181,17 +199,17 @@ function getAppHTMLAndCSS() {
 </div>
 
 <style>
-    /* These make sure the panel doesn't take up the whole screen
+    /* These make sure the editor doesn't take up the whole screen
     ** and instead stays in a nice neat tiny box */
     html,body {
         height: 100%;
         width: 100%;
     }
     #main-container {
-        height: 25%;
+        height: 50%;
         width: 30%;
     }
-    #panel {
+    #editor {
         height: 100%;
         overflow-y: scroll;
 
@@ -206,16 +224,25 @@ function getAppHTMLAndCSS() {
 
     /* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
     /* from https://stackoverflow.com/a/57465026 */
+    /* also making all text bold and Ubuntu, so its easier to see */
     #main-container {
         text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
         color: white;
+        
+        font-weight: bold;
+        /* no need to import Ubuntu font, Arras's default styling will take over in-game and provide it for free */
     }
 
-    /* makes the items more easy to visually separate from each other */
+    /* makes the items more easy to visually separate from each other and the borders of the main-container */
     table, th, td {
         border: 1px solid black;
         border-collapse: collapse;
         padding: 10px;
+    }
+
+    /* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
+    #main-container input[type="radio"] {
+        width: auto;
     }
 
 </style>
@@ -229,10 +256,11 @@ function runAppJS() {
         el: "#main-container",
 
         data: {
-            showPanel: true,
+            showEditor: true, // if this starts out false, then the color pickers break when used with v-show, and you'll have to use the (very) inefficient v-if instead, which causes a noticable momentary lag in the game
             config: Arras(),
             // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
             colorNames: ["teal","lgreen","orange","yellow","lavender","pink","vlgrey","lgrey","guiwhite","black","blue","green","red","gold","purple","magenta","grey","dgrey","white","guiblack"],
+            // colorNames and colorDescriptions CANNOT be combined because the order for colorNames is a bad description order (you shouldn't put magenta far apart from blue/green/red, etc...)
             colorDescriptions: [
                 /* "Utility" stuff, not sure how to describe these */
                 /* Borders -- at top since the border size selector is right above the color selectors */
