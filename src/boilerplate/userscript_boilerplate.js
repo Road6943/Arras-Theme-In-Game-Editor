@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
-// @author       You
+// @author       Road#6943
 // @match        *://arras.netlify.app/
 // @match        *://arras.io/
 // @require      https://cdn.jsdelivr.net/npm/vue@2.6.12
@@ -17,10 +17,12 @@
 /*
 **
 *** TODO:
-++ record to only use toggle button, or only hotkey
----- current setup allows new instances of editor to be created when hotkey is pressed again
-++ maybe get better color picker (maybe Spectrum??, 
-    https://vue-accessible-color-picker.netlify.app/, OR https://caohenghu.github.io/vue-colorpicker/) 
+
+++ add import/export themes capabilities (make sure its backwards compatible with standard arras themes)
+++ a tab for viewing and choosing pre-loaded themes such as the default ones (maybe with mini svg renders like in my random theme maker)
+++ add ability to save custom themes, and retrieve them from localStorage on page load
+++ buttons for random theme, rainbow changing theme, etc...
+
 ***
 **
 */
