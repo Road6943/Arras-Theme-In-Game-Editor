@@ -3,8 +3,21 @@
  -->
 
 <div id="main-container" 
-    :style="[showEditor ? {'backgroundColor': '#0001'} : {'backgroundColor': 'transparent'}]"
-> <!-- main-container when open gets a bg color of #0001 (not a typo) so that its styling like table borders appear no matter which color the map bg is -->
+    :style="[showEditor ? {
+                    'backgroundColor': '#0001',
+                    'height': '50%',
+                    'width': '30%',
+                } : {
+                    'backgroundColor': 'transparent',
+                    'height': '0%',
+                    'width': '0%',
+                }]"
+> <!-- main-container when open gets a bg color of #0001 (not a typo, it's pure black but with near-complete transparency) so that its styling like table borders appear no matter which color the map bg is -->
+<!--MOUSEOVER BUG FIX:
+    When the container has a set size in a css file, your mouse inputs when over the main container,
+        even if its closed, do not register with the game */
+/* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner 
+    This is why we use the v-bind:style for this -->
 
     <button id="toggle-btn" @click="showEditor = !showEditor">
         🐅 {{ showEditor ? "Close" : "Open" }} 🐅

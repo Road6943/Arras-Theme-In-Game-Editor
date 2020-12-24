@@ -8,10 +8,13 @@ html,body {
     height: 100%;
     width: 100%;
 }
-#main-container {
-    height: 50%;
-    width: 30%;
-}
+
+/* DO NOT SET HEIGHT/WIDTH FOR MAIN CONTAINER IN HERE (CSS FILE) */
+/* SET IT USING Vue's conditional :style binding */
+/* When the container has a set size, your mouse inputs when over the main container,
+        even if its closed, do not register with the game */
+/* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner */
+
 #editor {
     height: 100%;
     overflow-y: scroll;
