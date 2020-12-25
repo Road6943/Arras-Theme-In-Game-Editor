@@ -10,7 +10,6 @@
 // @require      https://cdn.jsdelivr.net/npm/verte
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
 // @grant        GM_getResourceText
-// @require      https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
 // ==/UserScript==
 
 
@@ -55,7 +54,7 @@ var LAUNCH_BTN_ID = 'launch-btn';
       </button>
     `);
 
-    document.getElementById(LAUNCH_BTN_ID).onclick = launchApp;
+    window.onload = function() {document.getElementById(LAUNCH_BTN_ID).onclick = launchApp;}
 })();
 
 
