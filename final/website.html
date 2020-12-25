@@ -78,6 +78,7 @@ function Arras() {
                     'backgroundColor': '#0001',
                     'height': '50%',
                     'width': '30%',
+                    'overflow': 'hidden',
                 } : {
                     'backgroundColor': 'transparent',
                     'height': '0%',
@@ -89,6 +90,7 @@ function Arras() {
         even if its closed, do not register with the game */
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner 
     This is why we use the v-bind:style for this -->
+<!-- overflow:hidden is to prevent editor from extending past the transparentish background of the main container -->
 
     <button id="toggle-btn" class="editor-btn"
         @click="showEditor = !showEditor"
@@ -187,18 +189,15 @@ html,body {
     width: 100%;
 }
 
-/* DO NOT SET HEIGHT/WIDTH FOR MAIN CONTAINER IN HERE (CSS FILE) */
+/* DO NOT SET HEIGHT/WIDTH/OVERFLOW FOR MAIN CONTAINER IN HERE (CSS FILE) */
 /* SET IT USING Vue's conditional :style binding */
 /* When the container has a set size, your mouse inputs when over the main container,
         even if its closed, do not register with the game */
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner */
-
 #editor {
     height: 100%;
-    overflow-y: scroll;
-
     width: 100%;
-    overflow-x: scroll;
+    overflow: auto;
 }
 
 /* dummy column adds space for the color picker to fully expand into */

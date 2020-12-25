@@ -7,6 +7,7 @@
                     'backgroundColor': '#0001',
                     'height': '50%',
                     'width': '30%',
+                    'overflow': 'hidden',
                 } : {
                     'backgroundColor': 'transparent',
                     'height': '0%',
@@ -18,6 +19,7 @@
         even if its closed, do not register with the game */
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner 
     This is why we use the v-bind:style for this -->
+<!-- overflow:hidden is to prevent editor from extending past the transparentish background of the main container -->
 
     <button id="toggle-btn" class="editor-btn"
         @click="showEditor = !showEditor"

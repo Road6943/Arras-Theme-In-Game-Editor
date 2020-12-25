@@ -54,7 +54,7 @@ var LAUNCH_BTN_ID = 'launch-btn';
       </button>
     `);
 
-    window.onload = function() {document.getElementById(LAUNCH_BTN_ID).onclick = launchApp;}
+    document.getElementById(LAUNCH_BTN_ID).onclick = launchApp
 })();
 
 
