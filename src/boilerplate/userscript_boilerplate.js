@@ -13,21 +13,6 @@
 // ==/UserScript==
 
 
-/*
-**
-*** TODO:
-
-++ add import/export themes capabilities (make sure its backwards compatible with standard arras themes)
-++ a tab for viewing and choosing pre-loaded themes such as the default ones (maybe with mini svg renders like in my random theme maker)
-++ add ability to save custom themes, and retrieve them from localStorage on page load
-++ buttons for random theme, rainbow changing theme, etc...
-++ make separate tabs for graphical/gui/themeColor
-
-***
-**
-*/
-
-
 /* IMPORTANT NOTES: use single quotes (') for the majority of stuff as they won't interfere with
 ** either HTML's " double quotes " or the js string interpolation backticks ``
 ** Arras() function is what allows this whole thing to work -- gives current theme values and allows you to set new ones */
