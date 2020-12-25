@@ -22,6 +22,7 @@
 ++ a tab for viewing and choosing pre-loaded themes such as the default ones (maybe with mini svg renders like in my random theme maker)
 ++ add ability to save custom themes, and retrieve them from localStorage on page load
 ++ buttons for random theme, rainbow changing theme, etc...
+++ make separate tabs for graphical/gui/themeColor
 
 ***
 **

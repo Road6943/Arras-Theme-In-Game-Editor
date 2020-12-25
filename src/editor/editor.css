@@ -57,3 +57,8 @@ td.dummy-column {
 #main-container input[type="radio"] {
     width: auto;
 }
+
+/* force text inside editor-btns to stay in 1 line */
+.editor-btn {
+    white-space: nowrap;
+}
