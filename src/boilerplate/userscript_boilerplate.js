@@ -10,7 +10,7 @@
 // @require      https://cdn.jsdelivr.net/npm/verte
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
 // @grant        GM_getResourceText
-// @grant        GM_addStyle
+// @require      https://raw.githubusercontent.com/SloaneFox/code/master/gm4-polyfill.js
 // ==/UserScript==
 
 
@@ -29,9 +29,10 @@
 */
 
 
-/* IMPORTANT NOTE: use single quotes (') for the majority of stuff as they won't interfere with
+/* IMPORTANT NOTES: use single quotes (') for the majority of stuff as they won't interfere with
 ** either HTML's " double quotes " or the js string interpolation backticks ``
 ** Arras() function is what allows this whole thing to work -- gives current theme values and allows you to set new ones */
+/* newer Userscript managers use GM.addStyle not GM_addStyle, so I inserted a polyfill further down in the script to deal with this */
 var CONTAINER_ID = 'main-container';
 var CANVAS_ID = 'canvas';
 var LAUNCH_BTN_ID = 'launch-btn';
@@ -111,6 +112,21 @@ function getUserscriptSpecificCSS() {
 
 `}
 
+// polyfill for GM_addStyle, because it won't work in newer userscript managers
+// from https://greasyfork.org/en/scripts/35383-gm-addstyle-polyfill
+function GM_addStyle(aCss) {
+  'use strict';
+  let head = document.getElementsByTagName('head')[0];
+  if (head) {
+    let style = document.createElement('style');
+    style.setAttribute('type', 'text/css');
+    style.textContent = aCss;
+    head.appendChild(style);
+    return style;
+  }
+  return null;
+};
+
 
 // paste the vue js html code into here, but NOT the script tag stuff or the style tag stuff
 function getAppHTML() {
@@ -130,3 +146,5 @@ function runAppJS() {
 
   //INSERT editor_js HERE//
 }
+
+
