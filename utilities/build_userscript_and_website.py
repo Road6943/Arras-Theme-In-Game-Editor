@@ -69,11 +69,12 @@ def build_website():
 
 
 def main():
+    # userscript
+    with open( filepaths["output"]["userscript"], "w" ) as userscript_output:
+        userscript_output.write( build_userscript() )
+
     # website
     with open( filepaths["output"]["website"], "w" ) as website_output:
         website_output.write( build_website() )
     
-    # userscript
-    with open( filepaths["output"]["userscript"], "w" ) as userscript_output:
-        userscript_output.write( build_userscript() )
 main()

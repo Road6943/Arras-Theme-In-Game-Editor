@@ -143,7 +143,9 @@ function getAppHTML() {
                 </thead>
 
                 <!-- in Vue, key,val is reversed to val,key -->
-                <tr v-for="(val,key) in config[category]" @change="renderChange(category, key)">
+                <tr v-for="(val,key) in config[category]" 
+                    @change="console.log('Arras().' + category + '.' + key + ' is now ' + config[category][key])"
+                >
                     <td>
                         {{ key }}
                     </td>
@@ -182,7 +184,9 @@ function getAppHTML() {
                         border
                     </td>
                     <td colspan="2" >
-                        <input type="number" v-model.number="config.themeColor.border" @change="renderChange('themeColor', 'border')">
+                        <input type="number" v-model.number="config.themeColor.border" 
+                                @change="console.log('Arras().themeColor.border is now ' + config.themeColor.border)"
+                        >
                     </td>
                 </tr>
 
@@ -198,7 +202,7 @@ function getAppHTML() {
                         <!-- Why won't menuPosition="right" work!!! --> <!-- Verte-related -->
                         <verte picker="square" model="hex" menuPosition="right"
                                 v-model="config.themeColor.table[ colorNames.indexOf(colorName) ]"
-                                @input="renderChange('themeColor', 'table', colorName) "
+                                @input=" console.log( colorName + ' is now ' + getHex(colorName) ) "
                         ></verte>
                     </td>
 
@@ -293,7 +297,9 @@ var app = new Vue({
 
     data: {
         showEditor: true, // if this starts out false, then the color pickers break when used with v-show, and you'll have to use the (very) inefficient v-if instead, which causes a noticable momentary lag in the game /* Verte-related */
-        config: Arras(),
+        
+        config: Arras(), // because this is linked directly to the game's Arras() obj, we don't need a watcher on config or a renderChange() function
+        
         // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
         colorNames: ["teal","lgreen","orange","yellow","lavender","pink","vlgrey","lgrey","guiwhite","black","blue","green","red","gold","purple","magenta","grey","dgrey","white","guiblack"],
         // colorNames and colorDescriptions CANNOT be combined because the order for colorNames is a bad description order (you shouldn't put magenta far apart from blue/green/red, etc...)
@@ -364,29 +370,6 @@ var app = new Vue({
             }
             if (val[0] === "#") {
                 return "color";
-            }
-        },
-
-        // category is stuff like "graphical" or "themeColor"
-        // property is the actual property that was changed, like "barChunk" or "table"
-        // changedColor is something like "teal" and is only used for changes to themeColor.table
-        renderChange(changedCategory, changedProperty, changedColor) {
-            // only for changes to the themeColor.table array
-            // border is handled like the other stuff in graphical
-            if (changedCategory === "themeColor" && changedProperty === "table" && changedColor) {
-                var index = this.colorNames.indexOf(changedColor);
-
-                console.log(changedColor + ' was changed to:')
-                console.log(this.config.themeColor.table[index])
-
-                Arras().themeColor.table[index] = this.config.themeColor.table[index];
-            }
-            // everything else, including themeColor.border
-            else {
-                console.log(changedCategory + '.' + changedProperty + ' was changed to:')
-                console.log(this.config[changedCategory][changedProperty])
-
-                Arras()[changedCategory][changedProperty] = this.config[changedCategory][changedProperty]
             }
         },
 

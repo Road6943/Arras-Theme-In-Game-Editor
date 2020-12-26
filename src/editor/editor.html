@@ -39,7 +39,9 @@
                 </thead>
 
                 <!-- in Vue, key,val is reversed to val,key -->
-                <tr v-for="(val,key) in config[category]" @change="renderChange(category, key)">
+                <tr v-for="(val,key) in config[category]" 
+                    @change="console.log('Arras().' + category + '.' + key + ' is now ' + config[category][key])"
+                >
                     <td>
                         {{ key }}
                     </td>
@@ -78,7 +80,9 @@
                         border
                     </td>
                     <td colspan="2" >
-                        <input type="number" v-model.number="config.themeColor.border" @change="renderChange('themeColor', 'border')">
+                        <input type="number" v-model.number="config.themeColor.border" 
+                                @change="console.log('Arras().themeColor.border is now ' + config.themeColor.border)"
+                        >
                     </td>
                 </tr>
 
@@ -94,7 +98,7 @@
                         <!-- Why won't menuPosition="right" work!!! --> <!-- Verte-related -->
                         <verte picker="square" model="hex" menuPosition="right"
                                 v-model="config.themeColor.table[ colorNames.indexOf(colorName) ]"
-                                @input="renderChange('themeColor', 'table', colorName) "
+                                @input=" console.log( colorName + ' is now ' + getHex(colorName) ) "
                         ></verte>
                     </td>
 
