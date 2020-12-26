@@ -58,8 +58,8 @@ td.dummy-column {
     width: auto;
 }
 
-/* force text inside tiger-btns to stay in 1 line */
-.tiger-btn {
+/* force text inside toggle-btn to stay in 1 line */
+#toggle-btn {
     white-space: nowrap;
 }
 

@@ -26,7 +26,14 @@ https://caohenghu.github.io/vue-colorpicker/
 https://vue-accessible-color-picker.netlify.app/
 -->
 
+<!-- Import and use Ubuntu font -->
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu:regular,bold&subset=Latin">
+<style> #main-container{ font-family: 'Ubuntu', sans-serif; } 
+</style>
+
 <script>
+// polyfills for things that wouldn't be available in the website but are essential for the userscript to run
+
 // this is what you get from typing Arras() into the console (in game, with default settings I think)
 // this function replicates the output from the userscript's console stuff for website.html since it cannot access Arras's console
 function Arras() {
@@ -64,6 +71,22 @@ function Arras() {
 }
     )
 }
+
+// polyfills for the GM methods dealing with storage
+// the actual GM_ methods are way better than localStorage because they store data
+// in their own database thats both more persistent than actual localStorage
+// and also viewable and editable with a GUI build into Tampermonkey
+function GM_getValue(key, defaultValue) {
+  // getItem returns null when key not present
+  return localStorage.getItem(key) || defaultValue;
+}
+function GM_setValue(key,val) {
+  localStorage.setItem(key, val);
+}
+function GM_deleteValue(key) {
+  localStorage.removeItem(key);
+}
+
 </script>
 
 <!--END From the original index.html file END-->

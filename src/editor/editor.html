@@ -112,6 +112,42 @@
     </div>
 
     <div id="extras" v-show="showApp && currentTab === 'extras' ">
-        <p>Add Import/Export/Save Theme Buttons, and Saved Themes Menu Here</p>
+        <table>
+            <tr>
+                <td>
+                    <input id="import-theme-input" type="text" 
+                        placeholder="Import Theme" v-model="importedTheme"
+                    >
+                </td>
+                <td>
+                    <button class="tiger-btn" @click="importTheme()">
+                        Import
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="tiger-btn" @click="exportTheme('tiger')">
+                        🐅 Export Tiger Theme 🐅
+                    </button>
+                </td>
+                <td>
+                    Best Option. Includes everything.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="tiger-btn" @click="exportTheme('backwardsCompatible')">
+                        Export Backwards-Compatible Theme
+                    </button>
+                </td>
+                <td>
+                    Only includes colors (and the border size). DOES NOT INCLUDE ANY OTHER VALUES SUCH AS FOR GRAPHICAL OR GUI PROPERTIES.
+                </td>
+            </tr>
+        </table>
+
+        
+        
     </div>
 </div>

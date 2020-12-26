@@ -216,7 +216,43 @@ function getAppHTML() {
     </div>
 
     <div id="extras" v-show="showApp && currentTab === 'extras' ">
-        <p>Add Import/Export/Save Theme Buttons, and Saved Themes Menu Here</p>
+        <table>
+            <tr>
+                <td>
+                    <input id="import-theme-input" type="text" 
+                        placeholder="Import Theme" v-model="importedTheme"
+                    >
+                </td>
+                <td>
+                    <button class="tiger-btn" @click="importTheme()">
+                        Import
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="tiger-btn" @click="exportTheme('tiger')">
+                        🐅 Export Tiger Theme 🐅
+                    </button>
+                </td>
+                <td>
+                    Best Option. Includes everything.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="tiger-btn" @click="exportTheme('backwardsCompatible')">
+                        Export Backwards-Compatible Theme
+                    </button>
+                </td>
+                <td>
+                    Only includes colors (and the border size). DOES NOT INCLUDE ANY OTHER VALUES SUCH AS FOR GRAPHICAL OR GUI PROPERTIES.
+                </td>
+            </tr>
+        </table>
+
+        
+        
     </div>
 </div>
 
@@ -285,8 +321,8 @@ td.dummy-column {
     width: auto;
 }
 
-/* force text inside tiger-btns to stay in 1 line */
-.tiger-btn {
+/* force text inside toggle-btn to stay in 1 line */
+#toggle-btn {
     white-space: nowrap;
 }
 
@@ -314,7 +350,13 @@ var app = new Vue({
                                 // other options can be ['editor', 'extras']
 
         config: Arras(), // because this is linked directly to the game's Arras() obj, we don't need a watcher on config or a renderChange() function
+        themeDetails: {
+            name: "", // theme name
+            author: "",
+        },
         
+        importedTheme: "",
+
         // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
         colorNames: ["teal","lgreen","orange","yellow","lavender","pink","vlgrey","lgrey","guiwhite","black","blue","green","red","gold","purple","magenta","grey","dgrey","white","guiblack"],
         // colorNames and colorDescriptions CANNOT be combined because the order for colorNames is a bad description order (you shouldn't put magenta far apart from blue/green/red, etc...)
@@ -393,6 +435,7 @@ var app = new Vue({
             return this.config.themeColor.table[ this.colorNames.indexOf(colorName) ];
         },
 
+        // move to next tab in tabs array, and then wrap back around to beginning
         changeTab() {
             var tabs = ['editor', 'extras'];
 
@@ -404,7 +447,22 @@ var app = new Vue({
             }
 
             this.currentTab = tabs[ newTabIndex ];
-        }
+        },
+
+        // export a theme as either a 'tiger' theme (using edn format) or 'arras' theme (json format, only contains themeColor changes)
+        // 'tiger' themes are purposefully incompatible with 'arras' themes because we don't want people who are not familiar with tiger
+        // to become confused why a theme they got/found from someone else doesn't seem to work properly 
+        // (as the default arras custom theme input would only change colors and border, not any of the other graphical/gui properties)
+        exportTheme(type) {
+            var a  = JSON.stringify(
+                { ...this.config, ...this.themeDetails }
+            );
+            console.log(a);
+        },
+
+        importTheme() {
+            // use trim() and then the <?xml stuff at start to tell if its a tiger theme
+        },
     },
 
     components: { Verte }, /* Verte-related */
