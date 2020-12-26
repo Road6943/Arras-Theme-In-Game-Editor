@@ -10,6 +10,7 @@
 // @require      https://cdn.jsdelivr.net/npm/verte
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
 // @grant        GM_getResourceText
+// @grant        GM_addStyle
 // ==/UserScript==
 
 
@@ -95,22 +96,6 @@ function getUserscriptSpecificCSS() {
 }
 
 `}
-
-// polyfill for GM_addStyle, because it won't work in newer userscript managers
-// from https://greasyfork.org/en/scripts/35383-gm-addstyle-polyfill
-function GM_addStyle(aCss) {
-  'use strict';
-  let head = document.getElementsByTagName('head')[0];
-  if (head) {
-    let style = document.createElement('style');
-    style.setAttribute('type', 'text/css');
-    style.textContent = aCss;
-    head.appendChild(style);
-    return style;
-  }
-  return null;
-};
-
 
 // paste the vue js html code into here, but NOT the script tag stuff or the style tag stuff
 function getAppHTML() {

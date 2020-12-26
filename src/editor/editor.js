@@ -18,6 +18,8 @@ var app = new Vue({
                 , "black"],
             ["Map Background"
                 , "white"],
+            ["Map Border, Grid"
+                , "guiblack"],
             ["Text Color"
                 , "guiwhite"],
             
@@ -38,30 +40,28 @@ var app = new Vue({
                 , "gold"],
             ["Triangles"
                 , "orange"],
-            ["Pentagons"
+            ["Pentagons, Pentagon Nest Background"
                 , "purple"],
             ["Crashers"
                 , "pink"],
-            ["Eggs and Minimap Background"
+            ["Eggs, Minimap Background, Invulnerability Flash"
                 , "vlgrey"],
 
             /* Bars under tanks/shapes/bosses/etc... */
-            ["Main Health Bar"
+            ["Main Health Bar, Rare Polygons"
                 , "lgreen"],
-            ["Shield/Regen Bar"
+            ["Shield/Regen Bar, Rare Polygons"
                 , "teal"],
 
-            /* Not sure what these do, plz help */
-            ["<< YELLOW >>## Bullet Penetration Stat? ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
+            /* Extras */
+            ["Arena Closers, Neutral Dominators"
                 , "yellow"],
-            ["<< LAVENDER >>## Pentagon Nest Background if Enabled? ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
-                , "lavender"],
-            ["<< LIGHT_GREY >>## Absolutely No Idea What This Does ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
-                , "lgrey"],
-            ["<< DARK_GREY >>## Smasher Upgrade Color? ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
+            ["Rogue Palisades"
                 , "dgrey"],
-            ["<< GUI_BLACK >>## Map Border Color? But it screws up if you keep changing it? ## \nNot completely sure what this does, please tell me @Road#6943 once you find out more places it is used"
-                , "guiblack"],
+            ["Unused"
+                , "lavender"],
+            ["Unused"
+                , "lgrey"],
         ],
     },
 
