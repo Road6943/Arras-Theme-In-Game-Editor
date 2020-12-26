@@ -2,6 +2,8 @@
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
 // @version      1.1
+// @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
+// @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
 // @author       Road#6943
 // @match        *://arras.netlify.app/
