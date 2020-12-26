@@ -3,7 +3,7 @@
  -->
 
 <div id="main-container" 
-    :style="[showEditor ? {
+    :style="[showApp ? {
                     'backgroundColor': '#0001',
                     'height': '50%',
                     'width': '30%',
@@ -21,13 +21,14 @@
     This is why we use the v-bind:style for this -->
 <!-- overflow:hidden is to prevent editor from extending past the transparentish background of the main container -->
 
-    <button id="toggle-btn" class="editor-btn"
-        @click="showEditor = !showEditor"
-    >
-        🐅 {{ showEditor ? "Close" : "Open" }} 🐅
+    <button id="toggle-btn" class="tiger-btn" @click="showApp = !showApp">
+        🐅 {{ showApp ? "Close" : "Open" }} 🐅
+    </button>
+    <button id="tab-btn" class="tiger-btn" @click="changeTab()" v-show="showApp">
+        Change Tab
     </button>
 
-    <div id="editor" v-show="showEditor">
+    <div id="editor" v-show="showApp && currentTab === 'editor' ">
         <div v-for="(_, category) in config" 
             v-if="category !== 'themeColor' " 
         > <!-- handle themeColor separately -->
@@ -108,5 +109,9 @@
                 </tr>
             </table>
         </div>
+    </div>
+
+    <div id="extras" v-show="showApp && currentTab === 'extras' ">
+        <p>Add Import/Export/Save Theme Buttons, and Saved Themes Menu Here</p>
     </div>
 </div>

@@ -35,9 +35,9 @@ var LAUNCH_BTN_ID = 'launch-btn';
     var canvas = document.getElementById(CANVAS_ID);
 
     // add a launch button to launch the main Vue instance, it should look identical to the toggle-btn
-    // thanks to their shared .editor-btn class
+    // thanks to their shared .tiger-btn class
     canvas.insertAdjacentHTML('beforebegin', `
-      <button id="${LAUNCH_BTN_ID}" class="editor-btn">
+      <button id="${LAUNCH_BTN_ID}" class="tiger-btn">
         🐅 Open 🐅
       </button>
     `);

@@ -6,8 +6,10 @@ var app = new Vue({
     el: "#main-container",
 
     data: {
-        showEditor: true, // if this starts out false, then the color pickers break when used with v-show, and you'll have to use the (very) inefficient v-if instead, which causes a noticable momentary lag in the game /* Verte-related */
-        
+        showApp: true, // applies to the overall app (#main-container)
+        currentTab: 'editor', // color pickers tab must be the initial one because otherwise the color pickers break
+                                // other options can be ['editor', 'extras']
+
         config: Arras(), // because this is linked directly to the game's Arras() obj, we don't need a watcher on config or a renderChange() function
         
         // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
@@ -87,6 +89,19 @@ var app = new Vue({
         getHex(colorName) {
             return this.config.themeColor.table[ this.colorNames.indexOf(colorName) ];
         },
+
+        changeTab() {
+            var tabs = ['editor', 'extras'];
+
+            var currentTabIndex = tabs.indexOf( this.currentTab );
+
+            var newTabIndex = currentTabIndex + 1;
+            if (newTabIndex === tabs.length) {
+                newTabIndex = 0;
+            }
+
+            this.currentTab = tabs[ newTabIndex ];
+        }
     },
 
     components: { Verte }, /* Verte-related */

@@ -27,13 +27,16 @@ td.dummy-column {
 }
 
 /* makes number inputs and editor buttons transparent */
-#main-container input[type="number"], .editor-btn {
+#main-container input[type="number"], 
+.tiger-btn {
     background-color:transparent;
 }
 /* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
 /* from https://stackoverflow.com/a/57465026 */
 /* also making all text bold and Ubuntu, so its easier to see */
-#main-container, #main-container input[type="number"], .editor-btn {
+#main-container, 
+#main-container input[type="number"], 
+.tiger-btn {
     text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
     color: white;
     
@@ -55,7 +58,12 @@ td.dummy-column {
     width: auto;
 }
 
-/* force text inside editor-btns to stay in 1 line */
-.editor-btn {
+/* force text inside tiger-btns to stay in 1 line */
+.tiger-btn {
     white-space: nowrap;
+}
+
+/* make the tab changing button stay away from the open/close button */
+#tab-btn {
+    float: right;
 }

@@ -35,9 +35,9 @@ var LAUNCH_BTN_ID = 'launch-btn';
     var canvas = document.getElementById(CANVAS_ID);
 
     // add a launch button to launch the main Vue instance, it should look identical to the toggle-btn
-    // thanks to their shared .editor-btn class
+    // thanks to their shared .tiger-btn class
     canvas.insertAdjacentHTML('beforebegin', `
-      <button id="${LAUNCH_BTN_ID}" class="editor-btn">
+      <button id="${LAUNCH_BTN_ID}" class="tiger-btn">
         🐅 Open 🐅
       </button>
     `);
@@ -107,7 +107,7 @@ function getAppHTML() {
  -->
 
 <div id="main-container" 
-    :style="[showEditor ? {
+    :style="[showApp ? {
                     'backgroundColor': '#0001',
                     'height': '50%',
                     'width': '30%',
@@ -125,13 +125,14 @@ function getAppHTML() {
     This is why we use the v-bind:style for this -->
 <!-- overflow:hidden is to prevent editor from extending past the transparentish background of the main container -->
 
-    <button id="toggle-btn" class="editor-btn"
-        @click="showEditor = !showEditor"
-    >
-        🐅 {{ showEditor ? "Close" : "Open" }} 🐅
+    <button id="toggle-btn" class="tiger-btn" @click="showApp = !showApp">
+        🐅 {{ showApp ? "Close" : "Open" }} 🐅
+    </button>
+    <button id="tab-btn" class="tiger-btn" @click="changeTab()" v-show="showApp">
+        Change Tab
     </button>
 
-    <div id="editor" v-show="showEditor">
+    <div id="editor" v-show="showApp && currentTab === 'editor' ">
         <div v-for="(_, category) in config" 
             v-if="category !== 'themeColor' " 
         > <!-- handle themeColor separately -->
@@ -213,6 +214,10 @@ function getAppHTML() {
             </table>
         </div>
     </div>
+
+    <div id="extras" v-show="showApp && currentTab === 'extras' ">
+        <p>Add Import/Export/Save Theme Buttons, and Saved Themes Menu Here</p>
+    </div>
 </div>
 
   `
@@ -249,13 +254,16 @@ td.dummy-column {
 }
 
 /* makes number inputs and editor buttons transparent */
-#main-container input[type="number"], .editor-btn {
+#main-container input[type="number"], 
+.tiger-btn {
     background-color:transparent;
 }
 /* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
 /* from https://stackoverflow.com/a/57465026 */
 /* also making all text bold and Ubuntu, so its easier to see */
-#main-container, #main-container input[type="number"], .editor-btn {
+#main-container, 
+#main-container input[type="number"], 
+.tiger-btn {
     text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
     color: white;
     
@@ -277,9 +285,14 @@ td.dummy-column {
     width: auto;
 }
 
-/* force text inside editor-btns to stay in 1 line */
-.editor-btn {
+/* force text inside tiger-btns to stay in 1 line */
+.tiger-btn {
     white-space: nowrap;
+}
+
+/* make the tab changing button stay away from the open/close button */
+#tab-btn {
+    float: right;
 }
 
   `
@@ -296,8 +309,10 @@ var app = new Vue({
     el: "#main-container",
 
     data: {
-        showEditor: true, // if this starts out false, then the color pickers break when used with v-show, and you'll have to use the (very) inefficient v-if instead, which causes a noticable momentary lag in the game /* Verte-related */
-        
+        showApp: true, // applies to the overall app (#main-container)
+        currentTab: 'editor', // color pickers tab must be the initial one because otherwise the color pickers break
+                                // other options can be ['editor', 'extras']
+
         config: Arras(), // because this is linked directly to the game's Arras() obj, we don't need a watcher on config or a renderChange() function
         
         // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
@@ -377,6 +392,19 @@ var app = new Vue({
         getHex(colorName) {
             return this.config.themeColor.table[ this.colorNames.indexOf(colorName) ];
         },
+
+        changeTab() {
+            var tabs = ['editor', 'extras'];
+
+            var currentTabIndex = tabs.indexOf( this.currentTab );
+
+            var newTabIndex = currentTabIndex + 1;
+            if (newTabIndex === tabs.length) {
+                newTabIndex = 0;
+            }
+
+            this.currentTab = tabs[ newTabIndex ];
+        }
     },
 
     components: { Verte }, /* Verte-related */
