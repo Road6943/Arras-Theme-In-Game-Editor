@@ -161,6 +161,9 @@ var app = new Vue({
 
         
         // supports both types of arras themes as well as the new TIGER_JSON theme type
+        // ONLY IMPORTS THEME, DOES NOT CHANGE GAME COLORS
+        // this function only converts an imported theme string into a js object mirroring this.config/the game's Arras() object
+        // a different function (applyTheme) will take in a theme obj and change the game's visual properties
         importTheme() {
             var themeToImport = this.importedTheme;
             themeToImport = themeToImport.trim();
@@ -206,10 +209,20 @@ var app = new Vue({
             }
 
             /* At this point, themeToImport should contain a js object mirroring the structure of this.config */
+            console.log('Imported Theme has been parsed as:');
             console.log(themeToImport)
+
+            // clear the import theme textarea
+            this.importedTheme = '';
+
+            // return the theme js object
+            return themeToImport;
         },
 
-
+        // takes in a themeObj, and changes the games visual properties using it
+        applyTheme(themeObj) {
+            
+        },
         
         // saves the current settings in the editor/extras as a new theme
         saveCurrentTheme() {
