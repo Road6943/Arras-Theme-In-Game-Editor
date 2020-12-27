@@ -104,6 +104,8 @@ function getAppHTML() {
   return `
     <!-- 
     This file contains the html (vue-template html) for the main editor
+    
+    The @keydown.stop stuff everywhere prevents typing into inputs in tiger from also affecting the game (e.g. when typing a theme name, you don't want presssing 'e' to also toggle autofire)
  -->
 
 <div id="main-container" 
@@ -199,9 +201,9 @@ function getAppHTML() {
                         {{ colorName }}
                     </td>
 
-                    <td>
+                    <td @keydown.stop> <!-- putting @keydown.stop in verte won't work, so this is the next best thing -->
                         <!-- Why won't menuPosition="right" work!!! --> <!-- Verte-related -->
-                        <verte picker="square" model="hex" menuPosition="right" @keydown.stop
+                        <verte picker="square" model="hex" menuPosition="right"
                                 v-model="config.themeColor.table[ colorNames.indexOf(colorName) ]"
                                 @input=" console.log( colorName + ' is now ' + getHex(colorName) ) "
                         ></verte>
