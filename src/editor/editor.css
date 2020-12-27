@@ -26,8 +26,10 @@ td.dummy-column {
     width: 100px;
 }
 
-/* makes number inputs and editor buttons transparent */
-#main-container input[type="number"], 
+/* makes number/text inputs and textareas and editor buttons transparent */
+#main-container input[type="number"]:not(.verte__input), 
+#main-container input[type="text"]:not(.verte__input),
+#main-container textarea,
 .tiger-btn {
     background-color:transparent;
 }
@@ -35,7 +37,9 @@ td.dummy-column {
 /* from https://stackoverflow.com/a/57465026 */
 /* also making all text bold and Ubuntu, so its easier to see */
 #main-container, 
-#main-container input[type="number"], 
+#main-container input[type="number"]:not(.verte__input),
+#main-container input[type="text"]:not(.verte__input),
+#main-container textarea,
 .tiger-btn {
     text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
     color: white;
