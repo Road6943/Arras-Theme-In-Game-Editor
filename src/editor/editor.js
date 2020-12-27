@@ -18,6 +18,12 @@ var app = new Vue({
         
         importedTheme: "",
 
+        savedThemes: [], // is synced with GM_ storage using a watcher :: each theme's unique key is its index in this array
+
+        // used to measure how long a user held their click over a button
+        // forcing a click to hold for 5?? seconds prevents accidental theme deletion
+        buttonClickStartTime: 0,
+
         // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
         colorNames: ["teal","lgreen","orange","yellow","lavender","pink","vlgrey","lgrey","guiwhite","black","blue","green","red","gold","purple","magenta","grey","dgrey","white","guiblack"],
         // colorNames and colorDescriptions CANNOT be combined because the order for colorNames is a bad description order (you shouldn't put magenta far apart from blue/green/red, etc...)
@@ -114,15 +120,59 @@ var app = new Vue({
         // 'tiger' themes are purposefully incompatible with 'arras' themes because we don't want people who are not familiar with tiger
         // to become confused why a theme they got/found from someone else doesn't seem to work properly 
         // (as the default arras custom theme input would only change colors and border, not any of the other graphical/gui properties)
+        // tiger themes look like this:
+        // TIGER_JSON{/* valid JSON */}
+        // this way it'll be easy in the future if we want to add in extra theme types like TIGER_BASE64/* valid base64 */ or TIGER_XML</* valid XML */>
         exportTheme(type) {
-            var a  = JSON.stringify(
-                { ...this.config, ...this.themeDetails }
+            var themeAsStr = JSON.stringify(
+                { 
+                    config: this.config,
+                    themeDetails: this.themeDetails,
+                }
             );
-            console.log(a);
+            console.log(themeAsStr);
         },
 
+        
         importTheme() {
-            // use trim() and then the <?xml stuff at start to tell if its a tiger theme
+            // Tiger themes start with TIGER, and then _<datatype>, e.g. TIGER_JSON{valid json here}
+            if (this.importedTheme.startsWith('TIGER')) {
+                if (this.importedTheme.startsWith('TIGER_JSON')) {
+
+                }
+            }
+            // standard arras theme, either base64 or normal JSON
+            // use functions provided by CX to handle these
+            else {
+
+            }
+        },
+
+
+        
+        // saves the current settings in the editor/extras as a new theme
+        saveCurrentTheme() {
+            var currentlySavedThemes = GM_listValues();
+            var themeName = this.themeDetails.name.toLowerCase();
+            
+            // check to make sure that there is no saved theme with the same name && author
+            for (var theme of currentlySavedThemes)
+
+            GM_setValue()
+        },
+        // delete a theme previously saved
+        // only allow this function to complete if user holds down click for 5 seconds
+        deleteSavedTheme(indexInSavedThemes) {
+            // performance.now() uses milliseconds
+            elapsedClickTime = ( performance.now() - this.buttonClickStartTime ) / 1000;
+            if (elapsedClickTime < 5) {
+                return;
+            }
+        
+            // remove item from savedThemes
+            this.savedThemes = this.savedThemes.filter(
+                theme => theme.themeDetails.id !== idToDelete
+            );
         },
     },
 

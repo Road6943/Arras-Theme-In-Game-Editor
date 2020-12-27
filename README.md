@@ -14,9 +14,6 @@ A userscript that can be used in-game (while playing Arras.io) in order to modif
 ---
 
 **Plans for the future:**
-+ add import/export themes capabilities (make sure its backwards compatible with standard arras themes)
++ add import/export themes capabilities
 + a tab for viewing and choosing pre-loaded themes such as the default ones (maybe with mini svg previews like in my random theme maker)
 + add ability to save custom themes, and retrieve them from localStorage on page load
-+ buttons for random theme, rainbow changing theme, etc...
-
-+ make separate tab for non-themeColor categories (graphical + gui)

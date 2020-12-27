@@ -132,7 +132,7 @@ function getAppHTML() {
         Change Tab
     </button>
 
-    <div id="editor" v-show="showApp && currentTab === 'editor' ">
+    <div id="editor" class="tab" v-show="showApp && currentTab === 'editor' ">
         <div v-for="(_, category) in config" 
             v-if="category !== 'themeColor' " 
         > <!-- handle themeColor separately -->
@@ -215,38 +215,58 @@ function getAppHTML() {
         </div>
     </div>
 
-    <div id="extras" v-show="showApp && currentTab === 'extras' ">
+    <div id="extras" class="tab" v-show="showApp && currentTab === 'extras' ">
         <table>
             <tr>
                 <td>
-                    <input id="import-theme-input" type="text" 
-                        placeholder="Import Theme" v-model="importedTheme"
+                    Theme Name:
+                </td>
+                <td>
+                    <input type="text" v-model="themeDetails.name" 
+                        placeholder="Theme Name"
                     >
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Theme Author:
+                </td>
+                <td>
+                    <input type="text" v-model="themeDetails.author" 
+                        placeholder="Theme Author"
+                    >
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <textarea id="import-theme-textarea" v-model="importedTheme" 
+                        placeholder="Theme to Import" 
+                    ></textarea>
                 </td>
                 <td>
                     <button class="tiger-btn" @click="importTheme()">
-                        Import
+                        Import Theme
                     </button>
                 </td>
             </tr>
             <tr>
+                <td>
+                    Best Option. Includes everything. Only works with Tiger.
+                </td>
                 <td>
                     <button class="tiger-btn" @click="exportTheme('tiger')">
                         🐅 Export Tiger Theme 🐅
                     </button>
                 </td>
-                <td>
-                    Best Option. Includes everything.
-                </td>
             </tr>
             <tr>
+                <td>
+                    Only includes colors (and the border size). DOES NOT INCLUDE ANY OTHER VALUES SUCH AS FOR GRAPHICAL OR GUI PROPERTIES. However, it can be used without Tiger, by entering it into Arras.io's custom theme input.
+                </td>
                 <td>
                     <button class="tiger-btn" @click="exportTheme('backwardsCompatible')">
                         Export Backwards-Compatible Theme
                     </button>
-                </td>
-                <td>
-                    Only includes colors (and the border size). DOES NOT INCLUDE ANY OTHER VALUES SUCH AS FOR GRAPHICAL OR GUI PROPERTIES.
                 </td>
             </tr>
         </table>
@@ -277,7 +297,7 @@ html,body {
 /* When the container has a set size, your mouse inputs when over the main container,
         even if its closed, do not register with the game */
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner */
-#editor {
+.tab {
     height: 90%; /* To prevent bottom from extending past main-container */
     width: 100%;
     overflow: auto;
@@ -314,6 +334,11 @@ td.dummy-column {
     border: 1px solid white;
     border-collapse: collapse;
     padding: 10px;
+}
+
+/* forces the number in number inputs to be close to its label on the left */
+#main-container input[type="number"] {
+    text-align: left;
 }
 
 /* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
@@ -356,6 +381,12 @@ var app = new Vue({
         },
         
         importedTheme: "",
+
+        savedThemes: [], // is synced with GM_ storage using a watcher :: each theme's unique key is its index in this array
+
+        // used to measure how long a user held their click over a button
+        // forcing a click to hold for 5?? seconds prevents accidental theme deletion
+        buttonClickStartTime: 0,
 
         // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
         colorNames: ["teal","lgreen","orange","yellow","lavender","pink","vlgrey","lgrey","guiwhite","black","blue","green","red","gold","purple","magenta","grey","dgrey","white","guiblack"],
@@ -453,15 +484,59 @@ var app = new Vue({
         // 'tiger' themes are purposefully incompatible with 'arras' themes because we don't want people who are not familiar with tiger
         // to become confused why a theme they got/found from someone else doesn't seem to work properly 
         // (as the default arras custom theme input would only change colors and border, not any of the other graphical/gui properties)
+        // tiger themes look like this:
+        // TIGER_JSON{/* valid JSON */}
+        // this way it'll be easy in the future if we want to add in extra theme types like TIGER_BASE64/* valid base64 */ or TIGER_XML</* valid XML */>
         exportTheme(type) {
-            var a  = JSON.stringify(
-                { ...this.config, ...this.themeDetails }
+            var themeAsStr = JSON.stringify(
+                { 
+                    config: this.config,
+                    themeDetails: this.themeDetails,
+                }
             );
-            console.log(a);
+            console.log(themeAsStr);
         },
 
+        
         importTheme() {
-            // use trim() and then the <?xml stuff at start to tell if its a tiger theme
+            // Tiger themes start with TIGER, and then _<datatype>, e.g. TIGER_JSON{valid json here}
+            if (this.importedTheme.startsWith('TIGER')) {
+                if (this.importedTheme.startsWith('TIGER_JSON')) {
+
+                }
+            }
+            // standard arras theme, either base64 or normal JSON
+            // use functions provided by CX to handle these
+            else {
+
+            }
+        },
+
+
+        
+        // saves the current settings in the editor/extras as a new theme
+        saveCurrentTheme() {
+            var currentlySavedThemes = GM_listValues();
+            var themeName = this.themeDetails.name.toLowerCase();
+            
+            // check to make sure that there is no saved theme with the same name && author
+            for (var theme of currentlySavedThemes)
+
+            GM_setValue()
+        },
+        // delete a theme previously saved
+        // only allow this function to complete if user holds down click for 5 seconds
+        deleteSavedTheme(indexInSavedThemes) {
+            // performance.now() uses milliseconds
+            elapsedClickTime = ( performance.now() - this.buttonClickStartTime ) / 1000;
+            if (elapsedClickTime < 5) {
+                return;
+            }
+        
+            // remove item from savedThemes
+            this.savedThemes = this.savedThemes.filter(
+                theme => theme.themeDetails.id !== idToDelete
+            );
         },
     },
 

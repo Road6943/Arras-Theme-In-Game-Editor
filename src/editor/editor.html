@@ -28,7 +28,7 @@
         Change Tab
     </button>
 
-    <div id="editor" v-show="showApp && currentTab === 'editor' ">
+    <div id="editor" class="tab" v-show="showApp && currentTab === 'editor' ">
         <div v-for="(_, category) in config" 
             v-if="category !== 'themeColor' " 
         > <!-- handle themeColor separately -->
@@ -111,38 +111,58 @@
         </div>
     </div>
 
-    <div id="extras" v-show="showApp && currentTab === 'extras' ">
+    <div id="extras" class="tab" v-show="showApp && currentTab === 'extras' ">
         <table>
             <tr>
                 <td>
-                    <input id="import-theme-input" type="text" 
-                        placeholder="Import Theme" v-model="importedTheme"
+                    Theme Name:
+                </td>
+                <td>
+                    <input type="text" v-model="themeDetails.name" 
+                        placeholder="Theme Name"
                     >
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Theme Author:
+                </td>
+                <td>
+                    <input type="text" v-model="themeDetails.author" 
+                        placeholder="Theme Author"
+                    >
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <textarea id="import-theme-textarea" v-model="importedTheme" 
+                        placeholder="Theme to Import" 
+                    ></textarea>
                 </td>
                 <td>
                     <button class="tiger-btn" @click="importTheme()">
-                        Import
+                        Import Theme
                     </button>
                 </td>
             </tr>
             <tr>
+                <td>
+                    Best Option. Includes everything. Only works with Tiger.
+                </td>
                 <td>
                     <button class="tiger-btn" @click="exportTheme('tiger')">
                         🐅 Export Tiger Theme 🐅
                     </button>
                 </td>
-                <td>
-                    Best Option. Includes everything.
-                </td>
             </tr>
             <tr>
+                <td>
+                    Only includes colors (and the border size). DOES NOT INCLUDE ANY OTHER VALUES SUCH AS FOR GRAPHICAL OR GUI PROPERTIES. However, it can be used without Tiger, by entering it into Arras.io's custom theme input.
+                </td>
                 <td>
                     <button class="tiger-btn" @click="exportTheme('backwardsCompatible')">
                         Export Backwards-Compatible Theme
                     </button>
-                </td>
-                <td>
-                    Only includes colors (and the border size). DOES NOT INCLUDE ANY OTHER VALUES SUCH AS FOR GRAPHICAL OR GUI PROPERTIES.
                 </td>
             </tr>
         </table>

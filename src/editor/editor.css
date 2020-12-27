@@ -14,7 +14,7 @@ html,body {
 /* When the container has a set size, your mouse inputs when over the main container,
         even if its closed, do not register with the game */
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner */
-#editor {
+.tab {
     height: 90%; /* To prevent bottom from extending past main-container */
     width: 100%;
     overflow: auto;
@@ -51,6 +51,11 @@ td.dummy-column {
     border: 1px solid white;
     border-collapse: collapse;
     padding: 10px;
+}
+
+/* forces the number in number inputs to be close to its label on the left */
+#main-container input[type="number"] {
+    text-align: left;
 }
 
 /* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
