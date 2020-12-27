@@ -145,7 +145,7 @@ var app = new Vue({
                 };
 
                 for (var colorName of this.colorNames) {
-                    themeToExport[colorName] = this.getHex(colorName);
+                    themeToExport.content[colorName] = this.getHex(colorName);
                 }
 
                 themeToExport = JSON.stringify(themeToExport);
@@ -157,6 +157,14 @@ var app = new Vue({
 
             console.log('Exported the following theme:');
             console.log(themeToExport);
+
+            // Vue-clipboard2 library
+            // this.$copyText(themeToExport)
+            //     .then(function(evt) {
+            //         pb.success('Copied to Clipboard!');
+            //     }, function(err) {
+            //         pb.error('Something went wrong :( Please contact @Road#6943 on Discord to fix this.');
+            //     });
         },
 
         

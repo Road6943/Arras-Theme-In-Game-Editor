@@ -6,8 +6,8 @@
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
 // @author       Road#6943
-// @match        *://arras.netlify.app/
 // @match        *://arras.io/
+// @match        *://arras.netlify.app/
 // @require      https://cdn.jsdelivr.net/npm/vue@2.6.12
 // @require      https://cdn.jsdelivr.net/npm/verte
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
@@ -15,11 +15,16 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
+/*
+require      https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js
+resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
+require      https://cdnjs.cloudflare.com/ajax/libs/vue-clipboard2/0.3.1/vue-clipboard.min.js
+
+*/
 
 /* IMPORTANT NOTES: use single quotes (') for the majority of stuff as they won't interfere with
 ** either HTML's " double quotes " or the js string interpolation backticks ``
 ** Arras() function is what allows this whole thing to work -- gives current theme values and allows you to set new ones */
-/* newer Userscript managers use GM.addStyle not GM_addStyle, so I inserted a polyfill further down in the script to deal with this */
 var CONTAINER_ID = 'main-container';
 var CANVAS_ID = 'canvas';
 var LAUNCH_BTN_ID = 'launch-btn';
@@ -31,6 +36,7 @@ var LAUNCH_BTN_ID = 'launch-btn';
     // Verte css stuff can't go here because it screws with the Arras landing page styling
     GM_addStyle( getUserscriptSpecificCSS() ); // positions items above canvas
     GM_addStyle( getAppCSS() ); // adds styling for the majority of the Vue app's ui
+    //GM_addStyle( GM_getResourceText('PROMPT_BOXES_CSS') ); // (non-blocking dialogs)
 
     var canvas = document.getElementById(CANVAS_ID);
 
@@ -112,8 +118,21 @@ function getAppCSS() {
   `
 }
 
-// paste the vue js <script> js </script> code into here
+// paste the vue js <script> js </script> code into herexs
 function runAppJS() {
+
+  // initialize Prompt Boxes here -- couldn't get this initialization to work inside Vue
+  // var pb = new PromptBoxes({
+  //   attrPrefix: 'pb',
+  //   toasts: {
+  //       direction: 'bottom',       // Which direction to show the toast  'top' | 'bottom'
+  //       max: 2,                 // The number of toasts that can be in the stack
+  //       duration: 1000 * 3,     // The time the toast appears (in milliseconds)
+  //       showTimerBar: true,     // Show timer bar countdown
+  //       closeWithEscape: true,  // Allow closing with escaping
+  //       allowClose: true,      // Whether to show a "x" to close the toast
+  //   }
+  // });
 
   //INSERT editor_js HERE//
 }

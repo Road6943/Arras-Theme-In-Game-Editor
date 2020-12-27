@@ -32,6 +32,28 @@ https://vue-accessible-color-picker.netlify.app/
 <style> #main-container{ font-family: 'Ubuntu', sans-serif; } 
 </style>
 
+<!-- import prompt-boxes (for the non-blocking notification dialogs) -->
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css">
+<script src="https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js"></script>
+<script>
+  // initialize Prompt Boxes here -- couldn't get this initialization to work inside Vue
+  var pb = new PromptBoxes({
+    attrPrefix: 'pb',
+    toasts: {
+        direction: 'bottom',       // Which direction to show the toast  'top' | 'bottom'
+        max: 2,                 // The number of toasts that can be in the stack
+        duration: 1000 * 3,     // The time the toast appears (in milliseconds)
+        showTimerBar: true,     // Show timer bar countdown
+        closeWithEscape: true,  // Allow closing with escaping
+        allowClose: true,      // Whether to show a "x" to close the toast
+    }
+  });
+
+</script>
+
+<!-- Vue-clipboard2, for copying theme exports to the clipboard -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-clipboard2/0.3.1/vue-clipboard.min.js" integrity="sha512-zNpg4bcFZvamz8fgq5nf9CMLlMdsT2Jy6Bb1tUOPtUCRTZuKnHa1I7yYWW2EOT16CgXohsx6gNnTNpKZpqJzSQ==" crossorigin="anonymous"></script>
+
 <script>
 // polyfills for things that wouldn't be available in the website but are essential for the userscript to run
 
@@ -494,7 +516,7 @@ var app = new Vue({
                 };
 
                 for (var colorName of this.colorNames) {
-                    themeToExport[colorName] = this.getHex(colorName);
+                    themeToExport.content[colorName] = this.getHex(colorName);
                 }
 
                 themeToExport = JSON.stringify(themeToExport);
@@ -506,6 +528,14 @@ var app = new Vue({
 
             console.log('Exported the following theme:');
             console.log(themeToExport);
+
+            // Vue-clipboard2 library
+            // this.$copyText(themeToExport)
+            //     .then(function(evt) {
+            //         pb.success('Copied to Clipboard!');
+            //     }, function(err) {
+            //         pb.error('Something went wrong :( Please contact @Road#6943 on Discord to fix this.');
+            //     });
         },
 
         
