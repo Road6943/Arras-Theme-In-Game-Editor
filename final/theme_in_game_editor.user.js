@@ -153,7 +153,7 @@ function getAppHTML() {
 
                     <!-- use the type of the value to determine the type of input selector :: typeof won't work because Vue represents numbers as strings -->
                     <td v-if="getType(val) === 'number' ">
-                        <input type="number" v-model.number="config[category][key]">
+                        <input type="number" v-model.number="config[category][key]" @keydown.stop>
                     </td>
 
                     <td v-else-if="getType(val) === 'boolean' ">
@@ -185,7 +185,7 @@ function getAppHTML() {
                         border
                     </td>
                     <td colspan="2" >
-                        <input type="number" v-model.number="config.themeColor.border" 
+                        <input type="number" v-model.number="config.themeColor.border" @keydown.stop
                                 @change="console.log('Arras().themeColor.border is now ' + config.themeColor.border)"
                         >
                     </td>
@@ -201,7 +201,7 @@ function getAppHTML() {
 
                     <td>
                         <!-- Why won't menuPosition="right" work!!! --> <!-- Verte-related -->
-                        <verte picker="square" model="hex" menuPosition="right"
+                        <verte picker="square" model="hex" menuPosition="right" @keydown.stop
                                 v-model="config.themeColor.table[ colorNames.indexOf(colorName) ]"
                                 @input=" console.log( colorName + ' is now ' + getHex(colorName) ) "
                         ></verte>
@@ -223,7 +223,7 @@ function getAppHTML() {
                 </td>
                 <td>
                     <input type="text" v-model="themeDetails.name" 
-                        placeholder="Name"
+                        placeholder="Name" @keydown.stop
                     >
                 </td>
             </tr>
@@ -233,14 +233,14 @@ function getAppHTML() {
                 </td>
                 <td>
                     <input type="text" v-model="themeDetails.author" 
-                        placeholder="Author"
+                        placeholder="Author" @keydown.stop
                     >
                 </td>
             </tr>
             <tr>
                 <td>
                     <textarea id="import-theme-textarea" v-model="importedTheme" 
-                        placeholder="Enter the theme you wish to import here" 
+                        placeholder="Enter theme" @keydown.stop
                     ></textarea>
                 </td>
                 <td>
@@ -251,7 +251,7 @@ function getAppHTML() {
             </tr>
             <tr>
                 <td>
-                    Best Option. Includes everything. Only works with Tiger.
+                    Best Option. Includes everything. Only works with Tiger (Theme In-Game Editor).
                 </td>
                 <td>
                     <button class="tiger-btn" @click="exportTheme('TIGER_JSON')">
