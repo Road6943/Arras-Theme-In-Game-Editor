@@ -50,9 +50,6 @@ https://vue-accessible-color-picker.netlify.app/
 
 </script>
 
-<!-- Vue-clipboard2, for copying theme exports to the clipboard -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-clipboard2/0.3.1/vue-clipboard.min.js" integrity="sha512-zNpg4bcFZvamz8fgq5nf9CMLlMdsT2Jy6Bb1tUOPtUCRTZuKnHa1I7yYWW2EOT16CgXohsx6gNnTNpKZpqJzSQ==" crossorigin="anonymous"></script>
-
 <script>
 // polyfills for things that wouldn't be available in the website but are essential for the userscript to run
 
@@ -109,6 +106,9 @@ function GM_deleteValue(key) {
   localStorage.removeItem(key);
 }
 
+async function GM_setClipboard(text) {
+  await navigator.clipboard.writeText(text);
+}
 </script>
 
 <!--END From the original index.html file END-->

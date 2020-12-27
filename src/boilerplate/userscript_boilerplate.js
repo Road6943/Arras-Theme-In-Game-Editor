@@ -13,12 +13,12 @@
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
+// @grant        GM_setClipboard
 // ==/UserScript==
 
 /*
 require      https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js
 resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
-require      https://cdnjs.cloudflare.com/ajax/libs/vue-clipboard2/0.3.1/vue-clipboard.min.js
 
 */
 
@@ -120,19 +120,6 @@ function getAppCSS() {
 
 // paste the vue js <script> js </script> code into herexs
 function runAppJS() {
-
-  // initialize Prompt Boxes here -- couldn't get this initialization to work inside Vue
-  // var pb = new PromptBoxes({
-  //   attrPrefix: 'pb',
-  //   toasts: {
-  //       direction: 'bottom',       // Which direction to show the toast  'top' | 'bottom'
-  //       max: 2,                 // The number of toasts that can be in the stack
-  //       duration: 1000 * 3,     // The time the toast appears (in milliseconds)
-  //       showTimerBar: true,     // Show timer bar countdown
-  //       closeWithEscape: true,  // Allow closing with escaping
-  //       allowClose: true,      // Whether to show a "x" to close the toast
-  //   }
-  // });
 
   //INSERT editor_js HERE//
 }

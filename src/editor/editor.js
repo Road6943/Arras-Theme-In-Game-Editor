@@ -155,16 +155,17 @@ var app = new Vue({
                 return;
             }
 
+
+            // copy to clipboard
+            GM_setClipboard(themeToExport);
+
             console.log('Exported the following theme:');
             console.log(themeToExport);
 
-            // Vue-clipboard2 library
-            // this.$copyText(themeToExport)
-            //     .then(function(evt) {
-            //         pb.success('Copied to Clipboard!');
-            //     }, function(err) {
-            //         pb.error('Something went wrong :( Please contact @Road#6943 on Discord to fix this.');
-            //     });
+            // use Prompt-Boxes library to notify user
+            //pb.success('Copied to Clipboard!');
+
+            GM_notification(themeToExport);
         },
 
         

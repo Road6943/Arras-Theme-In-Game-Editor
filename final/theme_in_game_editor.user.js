@@ -13,12 +13,13 @@
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
+// @grant        GM_setClipboard
+// @grant        GM_notification
 // ==/UserScript==
 
 /*
 require      https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js
 resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
-require      https://cdnjs.cloudflare.com/ajax/libs/vue-clipboard2/0.3.1/vue-clipboard.min.js
 
 */
 
@@ -544,16 +545,15 @@ var app = new Vue({
                 return;
             }
 
+
+            // copy to clipboard
+            GM_setClipboard(themeToExport);
+
             console.log('Exported the following theme:');
             console.log(themeToExport);
 
-            // Vue-clipboard2 library
-            // this.$copyText(themeToExport)
-            //     .then(function(evt) {
-            //         pb.success('Copied to Clipboard!');
-            //     }, function(err) {
-            //         pb.error('Something went wrong :( Please contact @Road#6943 on Discord to fix this.');
-            //     });
+            // use Prompt-Boxes library to notify user
+            //pb.success('Copied to Clipboard!');
         },
 
         

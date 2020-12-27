@@ -51,9 +51,6 @@ https://vue-accessible-color-picker.netlify.app/
 
 </script>
 
-<!-- Vue-clipboard2, for copying theme exports to the clipboard -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-clipboard2/0.3.1/vue-clipboard.min.js" integrity="sha512-zNpg4bcFZvamz8fgq5nf9CMLlMdsT2Jy6Bb1tUOPtUCRTZuKnHa1I7yYWW2EOT16CgXohsx6gNnTNpKZpqJzSQ==" crossorigin="anonymous"></script>
-
 <script>
 // polyfills for things that wouldn't be available in the website but are essential for the userscript to run
 
@@ -110,6 +107,9 @@ function GM_deleteValue(key) {
   localStorage.removeItem(key);
 }
 
+async function GM_setClipboard(text) {
+  await navigator.clipboard.writeText(text);
+}
 </script>
 
 <!--END From the original index.html file END-->
@@ -526,16 +526,17 @@ var app = new Vue({
                 return;
             }
 
+
+            // copy to clipboard
+            GM_setClipboard(themeToExport);
+
             console.log('Exported the following theme:');
             console.log(themeToExport);
 
-            // Vue-clipboard2 library
-            // this.$copyText(themeToExport)
-            //     .then(function(evt) {
-            //         pb.success('Copied to Clipboard!');
-            //     }, function(err) {
-            //         pb.error('Something went wrong :( Please contact @Road#6943 on Discord to fix this.');
-            //     });
+            // use Prompt-Boxes library to notify user
+            //pb.success('Copied to Clipboard!');
+
+            GM_notification(themeToExport);
         },
 
         
