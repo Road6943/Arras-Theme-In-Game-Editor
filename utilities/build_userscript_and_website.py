@@ -1,4 +1,5 @@
 # builds the files in the `final` folder from those in the `src` folder
+# also copies finished userscript to clipboard for convenience
 # run with   python3 ./utilities/build_userscript_and_website.py 
 
 # these should be based on the main overarching folder, NOT utilities
@@ -18,6 +19,8 @@ filepaths = {
     }
 }
 
+import re
+import pyperclip # copy to clipboard
 
 # This function not only writes to the userscript output file
 # but it also uses regex to find and replace code in the body of a js function
@@ -25,9 +28,6 @@ filepaths = {
 """   //INSERT python_variable_name HERE//   """
 def build_userscript():
     pattern = r'//INSERT(.*)HERE//'
-    
-
-    import re
 
     with \
         open( filepaths["boilerplate"]["userscript"] ) as userscript_boilerplate, \
@@ -71,7 +71,11 @@ def build_website():
 def main():
     # userscript
     with open( filepaths["output"]["userscript"], "w" ) as userscript_output:
-        userscript_output.write( build_userscript() )
+        built_userscript = build_userscript()
+        userscript_output.write( built_userscript )
+
+        pyperclip.copy( built_userscript )
+        print('Copied to clipboard!')
 
     # website
     with open( filepaths["output"]["website"], "w" ) as website_output:

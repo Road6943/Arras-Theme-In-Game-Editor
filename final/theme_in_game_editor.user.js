@@ -14,7 +14,6 @@
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM_setClipboard
-// @grant        GM_notification
 // ==/UserScript==
 
 /*
@@ -375,19 +374,6 @@ td.dummy-column {
 // paste the vue js <script> js </script> code into herexs
 function runAppJS() {
 
-  // initialize Prompt Boxes here -- couldn't get this initialization to work inside Vue
-  // var pb = new PromptBoxes({
-  //   attrPrefix: 'pb',
-  //   toasts: {
-  //       direction: 'bottom',       // Which direction to show the toast  'top' | 'bottom'
-  //       max: 2,                 // The number of toasts that can be in the stack
-  //       duration: 1000 * 3,     // The time the toast appears (in milliseconds)
-  //       showTimerBar: true,     // Show timer bar countdown
-  //       closeWithEscape: true,  // Allow closing with escaping
-  //       allowClose: true,      // Whether to show a "x" to close the toast
-  //   }
-  // });
-
   /*
     This file contains the Vue.js code that runs the editor
 */
@@ -558,9 +544,8 @@ var app = new Vue({
 
         
         // supports both types of arras themes as well as the new TIGER_JSON theme type
-        // ONLY IMPORTS THEME, DOES NOT CHANGE GAME COLORS
         // this function only converts an imported theme string into a js object mirroring this.config/the game's Arras() object
-        // a different function (applyTheme) will take in a theme obj and change the game's visual properties
+        // but importTheme calls a different function (applyTheme) that will take in a theme obj and change the game's visual properties
         importTheme() {
             var themeToImport = this.importedTheme;
             themeToImport = themeToImport.trim();
@@ -612,13 +597,22 @@ var app = new Vue({
             // clear the import theme textarea
             this.importedTheme = '';
 
-            // return the theme js object
-            return themeToImport;
+            // use the js object to change the game's colors
+            this.applyTheme(themeToImport);
         },
 
         // takes in a themeObj, and changes the games visual properties using it
+        // be careful not to simply assign this.config to a new object, 
+        // because that will remove it being a reference to the actual game's Arras() object
+        // similarly, you can only directly change the atomic properties + arrays (not objects)
         applyTheme(themeObj) {
+            this.themeDetails = themeObj.themeDetails;
             
+            for (var category in themeObj.config) {
+                for (var property in themeObj.config[category]) {
+                    this.config[category][property] = themeObj.config[category][property];
+                }
+            }
         },
         
         // saves the current settings in the editor/extras as a new theme
