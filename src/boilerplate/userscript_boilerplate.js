@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.4
 // @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
@@ -11,16 +11,13 @@
 // @require      https://cdn.jsdelivr.net/npm/vue@2.6.12
 // @require      https://cdn.jsdelivr.net/npm/verte
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
+// @require      https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js
+// @resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM_setClipboard
 // ==/UserScript==
 
-/*
-require      https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js
-resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
-
-*/
 
 /* IMPORTANT NOTES: use single quotes (') for the majority of stuff as they won't interfere with
 ** either HTML's " double quotes " or the js string interpolation backticks ``
@@ -75,6 +72,9 @@ function launchApp() {
   // add verte css file (color picker styling)
   // Must go here (in-game only, never landing page) because it screws with the Arras landing page styling somehow
   GM_addStyle( GM_getResourceText("VERTE_CSS") );
+
+  // add css to make the Prompt Boxes non-blocking dialog toasts work
+  GM_addStyle( GM_getResourceText('PROMPT_BOXES_CSS') );
 
   var canvas = document.getElementById(CANVAS_ID);
   canvas.insertAdjacentHTML('beforebegin', getAppHTML());

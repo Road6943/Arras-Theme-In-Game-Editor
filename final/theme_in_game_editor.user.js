@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.4
 // @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
@@ -11,16 +11,13 @@
 // @require      https://cdn.jsdelivr.net/npm/vue@2.6.12
 // @require      https://cdn.jsdelivr.net/npm/verte
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
+// @require      https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js
+// @resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM_setClipboard
 // ==/UserScript==
 
-/*
-require      https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js
-resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
-
-*/
 
 /* IMPORTANT NOTES: use single quotes (') for the majority of stuff as they won't interfere with
 ** either HTML's " double quotes " or the js string interpolation backticks ``
@@ -75,6 +72,9 @@ function launchApp() {
   // add verte css file (color picker styling)
   // Must go here (in-game only, never landing page) because it screws with the Arras landing page styling somehow
   GM_addStyle( GM_getResourceText("VERTE_CSS") );
+
+  // add css to make the Prompt Boxes non-blocking dialog toasts work
+  GM_addStyle( GM_getResourceText('PROMPT_BOXES_CSS') );
 
   var canvas = document.getElementById(CANVAS_ID);
   canvas.insertAdjacentHTML('beforebegin', getAppHTML());
@@ -252,8 +252,12 @@ function getAppHTML() {
                     ></textarea>
                 </td>
                 <td>
-                    <button class="tiger-btn" @click="importTheme()">
-                        Import Theme
+                    <button class="tiger-btn" @click="indicateClicked('importTheme'); importTheme()">
+                        {{
+                            wasButtonClicked.importTheme
+                            ? 'Currently Importing Theme'
+                            : 'Import Theme'
+                        }}
                     </button>
                 </td>
             </tr>
@@ -262,8 +266,12 @@ function getAppHTML() {
                     Best Option. Includes everything. Only works with Tiger (Theme In-Game Editor).
                 </td>
                 <td>
-                    <button class="tiger-btn" @click="exportTheme('TIGER_JSON')">
-                        🐅 Export Tiger Theme 🐅
+                    <button class="tiger-btn" @click="indicateClicked('exportTiger'); exportTheme('TIGER_JSON')">
+                        {{ 
+                            wasButtonClicked.exportTiger 
+                            ?  'Copied to clipboard!'
+                            : '🐅 Export Tiger Theme 🐅' 
+                        }}
                     </button>
                 </td>
             </tr>
@@ -272,8 +280,12 @@ function getAppHTML() {
                     Only includes colors (and the border size). DOES NOT INCLUDE ANY OTHER VALUES SUCH AS FOR GRAPHICAL OR GUI PROPERTIES. However, it can be used without Tiger, by entering it into Arras.io's custom theme input.
                 </td>
                 <td>
-                    <button class="tiger-btn" @click="exportTheme('backwardsCompatible')">
-                        Export Backwards-Compatible Theme
+                    <button class="tiger-btn" @click="indicateClicked('exportBackwardsCompatible'); exportTheme('backwardsCompatible')">
+                        {{ 
+                            wasButtonClicked.exportBackwardsCompatible
+                            ? 'Copied to clipboard!'
+                            : 'Export Backwards-Compatible Theme'
+                        }}
                     </button>
                 </td>
             </tr>
@@ -305,7 +317,7 @@ html,body {
 /* When the container has a set size, your mouse inputs when over the main container,
         even if its closed, do not register with the game */
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner */
-.tab {
+#main-container .tab {
     height: 90%; /* To prevent bottom from extending past main-container */
     width: 100%;
     overflow: auto;
@@ -368,6 +380,14 @@ td.dummy-column {
     float: right;
 }
 
+/* make extras tab table stay within main-container */
+#extras table {
+    table-layout: fixed;
+}
+#extras textarea {
+    width: 100%;
+}
+
   `
 }
 
@@ -379,6 +399,19 @@ function runAppJS() {
 */
 'use strict';
 
+// initializing PromptBoxes (used for its toasts, which are non-blocking dialogs)
+var pb = new PromptBoxes({
+    attrPrefix: 'pb',
+    toasts: {
+        direction: 'top',       // Which direction to show the toast  'top' | 'bottom'
+        max: 2,                 // The number of toasts that can be in the stack
+        duration: 1000 * 3,     // The time the toast appears (in milliseconds)
+        showTimerBar: true,     // Show timer bar countdown
+        closeWithEscape: true,  // Allow closing with escaping
+        allowClose: true,      // Whether to show a "x" to close the toast
+    }
+});
+
 var app = new Vue({
     el: "#main-container",
 
@@ -387,7 +420,7 @@ var app = new Vue({
     data: {
         showApp: true, // applies to the overall app (#main-container)
         currentTab: 'editor', // color pickers tab must be the initial one because otherwise the color pickers break
-                                // other options can be ['editor', 'extras']
+                                // other options can be found in the changeTab() function
 
         config: Arras(), // because this is linked directly to the game's Arras() obj, we don't need a watcher on config or a renderChange() function
         themeDetails: {
@@ -402,6 +435,13 @@ var app = new Vue({
         // used to measure how long a user held their click over a button
         // forcing a click to hold for 5?? seconds prevents accidental theme deletion
         buttonClickStartTime: 0,
+
+        // used to temporarily change button text after being clicked
+        wasButtonClicked: {
+            importTheme: false,
+            exportTiger: false,
+            exportBackwardsCompatible: false,
+        },
 
         // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
         colorNames: ["teal","lgreen","orange","yellow","lavender","pink","vlgrey","lgrey","guiwhite","black","blue","green","red","gold","purple","magenta","grey","dgrey","white","guiblack"],
@@ -495,6 +535,14 @@ var app = new Vue({
             this.currentTab = tabs[ newTabIndex ];
         },
 
+        // change a button to say that it was clicked for a certain amount of time (currently 3 sec.)
+        indicateClicked(btnName) {
+            this.wasButtonClicked[btnName] = true;
+            setTimeout(() => {
+                this.wasButtonClicked[btnName] = false;
+            }, 1000 * 3);
+        },
+
         // export a theme as either a 'tiger' theme (using edn format) or 'arras' theme (json format, only contains themeColor changes)
         exportTheme(type) {
             var themeToExport = {};
@@ -539,7 +587,7 @@ var app = new Vue({
             console.log(themeToExport);
 
             // use Prompt-Boxes library to notify user
-            //pb.success('Copied to Clipboard!');
+            pb.success('Copied to Clipboard!');
         },
 
         
@@ -549,6 +597,11 @@ var app = new Vue({
         importTheme() {
             var themeToImport = this.importedTheme;
             themeToImport = themeToImport.trim();
+
+            if (themeToImport === '') {
+                pb.error('Enter theme in box to the left');
+                return;
+            }
 
             // Tiger themes start with TIGER, and then _<datatype>, e.g. TIGER_JSON{valid json here}
             if (themeToImport.startsWith('TIGER')) {
@@ -613,6 +666,8 @@ var app = new Vue({
                     this.config[category][property] = themeObj.config[category][property];
                 }
             }
+
+            pb.success('Theme Imported!');
         },
         
         // saves the current settings in the editor/extras as a new theme

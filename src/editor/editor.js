@@ -3,6 +3,19 @@
 */
 'use strict';
 
+// initializing PromptBoxes (used for its toasts, which are non-blocking dialogs)
+var pb = new PromptBoxes({
+    attrPrefix: 'pb',
+    toasts: {
+        direction: 'top',       // Which direction to show the toast  'top' | 'bottom'
+        max: 2,                 // The number of toasts that can be in the stack
+        duration: 1000 * 3,     // The time the toast appears (in milliseconds)
+        showTimerBar: true,     // Show timer bar countdown
+        closeWithEscape: true,  // Allow closing with escaping
+        allowClose: true,      // Whether to show a "x" to close the toast
+    }
+});
+
 var app = new Vue({
     el: "#main-container",
 
@@ -11,7 +24,7 @@ var app = new Vue({
     data: {
         showApp: true, // applies to the overall app (#main-container)
         currentTab: 'editor', // color pickers tab must be the initial one because otherwise the color pickers break
-                                // other options can be ['editor', 'extras']
+                                // other options can be found in the changeTab() function
 
         config: Arras(), // because this is linked directly to the game's Arras() obj, we don't need a watcher on config or a renderChange() function
         themeDetails: {
@@ -26,6 +39,13 @@ var app = new Vue({
         // used to measure how long a user held their click over a button
         // forcing a click to hold for 5?? seconds prevents accidental theme deletion
         buttonClickStartTime: 0,
+
+        // used to temporarily change button text after being clicked
+        wasButtonClicked: {
+            importTheme: false,
+            exportTiger: false,
+            exportBackwardsCompatible: false,
+        },
 
         // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
         colorNames: ["teal","lgreen","orange","yellow","lavender","pink","vlgrey","lgrey","guiwhite","black","blue","green","red","gold","purple","magenta","grey","dgrey","white","guiblack"],
@@ -119,6 +139,14 @@ var app = new Vue({
             this.currentTab = tabs[ newTabIndex ];
         },
 
+        // change a button to say that it was clicked for a certain amount of time (currently 3 sec.)
+        indicateClicked(btnName) {
+            this.wasButtonClicked[btnName] = true;
+            setTimeout(() => {
+                this.wasButtonClicked[btnName] = false;
+            }, 1000 * 3);
+        },
+
         // export a theme as either a 'tiger' theme (using edn format) or 'arras' theme (json format, only contains themeColor changes)
         exportTheme(type) {
             var themeToExport = {};
@@ -163,7 +191,7 @@ var app = new Vue({
             console.log(themeToExport);
 
             // use Prompt-Boxes library to notify user
-            //pb.success('Copied to Clipboard!');
+            pb.success('Copied to Clipboard!');
         },
 
         
@@ -173,6 +201,11 @@ var app = new Vue({
         importTheme() {
             var themeToImport = this.importedTheme;
             themeToImport = themeToImport.trim();
+
+            if (themeToImport === '') {
+                pb.error('Enter theme in box to the left');
+                return;
+            }
 
             // Tiger themes start with TIGER, and then _<datatype>, e.g. TIGER_JSON{valid json here}
             if (themeToImport.startsWith('TIGER')) {
@@ -237,6 +270,8 @@ var app = new Vue({
                     this.config[category][property] = themeObj.config[category][property];
                 }
             }
+
+            pb.success('Theme Imported!');
         },
         
         // saves the current settings in the editor/extras as a new theme

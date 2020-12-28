@@ -142,8 +142,12 @@
                     ></textarea>
                 </td>
                 <td>
-                    <button class="tiger-btn" @click="importTheme()">
-                        Import Theme
+                    <button class="tiger-btn" @click="indicateClicked('importTheme'); importTheme()">
+                        {{
+                            wasButtonClicked.importTheme
+                            ? 'Currently Importing Theme'
+                            : 'Import Theme'
+                        }}
                     </button>
                 </td>
             </tr>
@@ -152,8 +156,12 @@
                     Best Option. Includes everything. Only works with Tiger (Theme In-Game Editor).
                 </td>
                 <td>
-                    <button class="tiger-btn" @click="exportTheme('TIGER_JSON')">
-                        🐅 Export Tiger Theme 🐅
+                    <button class="tiger-btn" @click="indicateClicked('exportTiger'); exportTheme('TIGER_JSON')">
+                        {{ 
+                            wasButtonClicked.exportTiger 
+                            ?  'Copied to clipboard!'
+                            : '🐅 Export Tiger Theme 🐅' 
+                        }}
                     </button>
                 </td>
             </tr>
@@ -162,8 +170,12 @@
                     Only includes colors (and the border size). DOES NOT INCLUDE ANY OTHER VALUES SUCH AS FOR GRAPHICAL OR GUI PROPERTIES. However, it can be used without Tiger, by entering it into Arras.io's custom theme input.
                 </td>
                 <td>
-                    <button class="tiger-btn" @click="exportTheme('backwardsCompatible')">
-                        Export Backwards-Compatible Theme
+                    <button class="tiger-btn" @click="indicateClicked('exportBackwardsCompatible'); exportTheme('backwardsCompatible')">
+                        {{ 
+                            wasButtonClicked.exportBackwardsCompatible
+                            ? 'Copied to clipboard!'
+                            : 'Export Backwards-Compatible Theme'
+                        }}
                     </button>
                 </td>
             </tr>

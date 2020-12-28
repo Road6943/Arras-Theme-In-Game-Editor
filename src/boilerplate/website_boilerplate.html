@@ -34,21 +34,6 @@ https://vue-accessible-color-picker.netlify.app/
 <!-- import prompt-boxes (for the non-blocking notification dialogs) -->
 <link rel="stylesheet" type="text/css" href="https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css">
 <script src="https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js"></script>
-<script>
-  // initialize Prompt Boxes here -- couldn't get this initialization to work inside Vue
-  var pb = new PromptBoxes({
-    attrPrefix: 'pb',
-    toasts: {
-        direction: 'bottom',       // Which direction to show the toast  'top' | 'bottom'
-        max: 2,                 // The number of toasts that can be in the stack
-        duration: 1000 * 3,     // The time the toast appears (in milliseconds)
-        showTimerBar: true,     // Show timer bar countdown
-        closeWithEscape: true,  // Allow closing with escaping
-        allowClose: true,      // Whether to show a "x" to close the toast
-    }
-  });
-
-</script>
 
 <script>
 // polyfills for things that wouldn't be available in the website but are essential for the userscript to run
