@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.5
 // @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
@@ -13,16 +13,21 @@
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
 // @require      https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js
 // @resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
+// @require      https://unpkg.com/konva@4.0.0/konva.min.js
+// @require      https://cdn.jsdelivr.net/npm/vue-konva@1.0.7/lib/vue-konva.min.js
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM_setClipboard
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_deleteValue
 // ==/UserScript==
 
 
 /* IMPORTANT NOTES: use single quotes (') for the majority of stuff as they won't interfere with
 ** either HTML's " double quotes " or the js string interpolation backticks ``
 ** Arras() function is what allows this whole thing to work -- gives current theme values and allows you to set new ones */
-var CONTAINER_ID = 'main-container';
+var CONTAINER_ID = 'app';
 var CANVAS_ID = 'canvas';
 var LAUNCH_BTN_ID = 'launch-btn';
 
@@ -114,30 +119,37 @@ function getAppHTML() {
     The @keydown.stop stuff everywhere prevents typing into inputs in tiger from also affecting the game (e.g. when typing a theme name, you don't want presssing 'e' to also toggle autofire)
  -->
 
-<div id="main-container" 
+<div id="app" 
     :style="[showApp ? {
-                    'backgroundColor': '#0001',
-                    'height': '50%',
-                    'width': '30%',
-                    'overflow': 'hidden',
+                    backgroundColor: '#0004', /* not a typo */
+                    height: '50%',
+                    width: '30%',
+                    overflow: 'hidden',
                 } : {
-                    'backgroundColor': 'transparent',
-                    'height': '0%',
-                    'width': '0%',
+                    backgroundColor: 'transparent',
+                    height: '0%',
+                    width: '0%',
                 }]"
-> <!-- main-container when open gets a bg color of #0001 (not a typo, it's pure black but with near-complete transparency) so that its styling like table borders appear no matter which color the map bg is -->
+> <!-- app when open gets a bg color of #0001 (not a typo, it's pure black but with near-complete transparency) so that its styling like table borders appear no matter which color the map bg is -->
 <!--MOUSEOVER BUG FIX:
-    When the container has a set size in a css file, your mouse inputs when over the main container,
+    When the container has a set size in a css file, your mouse inputs when over the app,
         even if its closed, do not register with the game */
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner 
     This is why we use the v-bind:style for this -->
-<!-- overflow:hidden is to prevent editor from extending past the transparentish background of the main container -->
+<!-- overflow:hidden is to prevent editor from extending past the transparentish background of the app -->
 
     <button id="toggle-btn" class="tiger-btn" @click="showApp = !showApp">
         🐅 {{ showApp ? "Close" : "Open" }} 🐅
     </button>
     <button id="tab-btn" class="tiger-btn" @click="changeTab()" v-show="showApp">
         Change Tab
+    </button>
+    <br>
+    <button id="save-btn" class="tiger-btn" v-show="showApp"
+            @mousedown="indicateClicked('saveCurrentTheme') "
+            @mouseup="saveCurrentTheme()"
+    >
+        Save Current Theme
     </button>
 
     <div id="editor" class="tab" v-show="showApp && currentTab === 'editor' ">
@@ -201,7 +213,7 @@ function getAppHTML() {
 
                 <tr v-for="[ description, colorName ] in colorDescriptions" >
 
-                    <!-- A "dummy" column, so that the color picker doesn't flow out of the main-container -->
+                    <!-- A "dummy" column, so that the color picker doesn't flow out of the app -->
                     <!-- Verte-related -->
                     <td class="dummy-column">
                         {{ colorName }}
@@ -256,7 +268,7 @@ function getAppHTML() {
                         {{
                             wasButtonClicked.importTheme
                             ? 'Currently Importing Theme'
-                            : 'Import Theme'
+                            : 'Import Theme (All Types Accepted)'
                         }}
                     </button>
                 </td>
@@ -268,7 +280,7 @@ function getAppHTML() {
                 <td>
                     <button class="tiger-btn" @click="indicateClicked('exportTiger'); exportTheme('TIGER_JSON')">
                         {{ 
-                            wasButtonClicked.exportTiger 
+                            wasButtonClicked.exportTiger
                             ?  'Copied to clipboard!'
                             : '🐅 Export Tiger Theme 🐅' 
                         }}
@@ -294,6 +306,80 @@ function getAppHTML() {
         
         
     </div>
+
+    <div id="savedThemes" class="tab" v-show="showApp && currentTab === 'savedThemes' ">
+        <table>
+            <tr v-for="(theme,index) in savedThemes">
+                <td class="theme-details-container" >
+                    {{ theme.themeDetails.name }}
+                    <br><br>
+                    by:
+                    <br>
+                    {{ theme.themeDetails.author }}
+                    <br><br>
+                    <button class="delete-btn tiger-btn"
+                            @mousedown="indicateClicked('deleteTheme') 
+                                            /* sets the starting timestamp */
+                                        "
+                            @mouseup="deleteSavedTheme(index)  
+                                        /* only deletes if mouseup timestamp - mousedown timestamp >= 3 seconds, to prevent accidental deletion */ 
+                                        " 
+                    >
+                        Delete Theme
+                    </button>
+                </td>
+                <td>
+                    <svg class="preview" 
+                        :style="{ 
+                            backgroundColor: getHex('white', theme) ,
+                            stroke: getHex('black', theme) ,
+                            strokeWidth: 3 ,
+                        }"
+                        @click="applyTheme(theme)"
+                    >
+                        <rect class="barrelsAndRocks" x="50" y="40" rx="5" ry="5" width="35" height="20" stroke-width="3"
+                            :fill="getHex('grey', theme)" />
+                        <circle class="blueTeam" cx="50" cy="50" r="20" stroke-width="3"
+                            :fill="getHex('blue', theme)" />
+                        
+                        <rect class="barrelsAndRocks" x="215" y="40" rx="5" ry="5" width="35" height="20" stroke-width="3"
+                            :fill="getHex('grey', theme)" />
+                        <circle class="greenTeam" cx="250" cy="50" r="20" stroke-width="3"
+                            :fill="getHex('green', theme)" />
+                        
+                        <rect class="barrelsAndRocks" x="215" y="140" rx="5" ry="5" width="35" height="20" stroke-width="3"
+                            :fill="getHex('grey', theme)" />
+                        <circle class="magentaTeam" cx="250" cy="150" r="20" stroke-width="3"
+                            :fill="getHex('magenta', theme)" />
+                        
+                        <rect class="barrelsAndRocks" x="50" y="140" rx="5" ry="5" width="35" height="20" stroke-width="3"
+                            :fill="getHex('grey', theme)" />
+                        <circle class="redTeam" cx="50" cy="150" r="20" stroke-width="3"
+                            :fill="getHex('red', theme)" />
+                        
+                        <polygon class="triangle" points="65.5,100  100,80  100,120"
+                            :fill="getHex('orange', theme)" />
+                        
+                        <polygon class="square" points="230.5,85 230.5,115 200.5,115 200.5,85"
+                            :fill="getHex('gold', theme)" />
+                        
+                        <polygon class="pentagon" points="138,113  130.6,90.2  150,76.1  169.4,90.2  162,113" 
+                            :fill="getHex('purple', theme)" />
+                        
+                        <polygon class="rock" class="barrelsAndRocks" points="142.1,53.7  131.15,42.75  131.15,27.25  142.1,16.3  157.6,16.1  168.55,27.25  168.55,42.75  157.6,53.7"
+                            :fill="getHex('grey', theme)" />
+                        
+                        <polygon class="crasher" points="150,130 140,147.32 160,147.32"
+                            :fill="getHex('pink', theme)" />
+                        
+                        <text x="87.5" y="180" class="gameText"
+                            :fill="getHex('guiwhite', theme)"
+                        >Click To Use</text>
+                    </svg>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 
   `
@@ -312,13 +398,13 @@ html,body {
     width: 100%;
 }
 
-/* DO NOT SET HEIGHT/WIDTH/OVERFLOW FOR MAIN CONTAINER IN HERE (CSS FILE) */
+/* DO NOT SET HEIGHT/WIDTH/OVERFLOW FOR app IN HERE (CSS FILE) */
 /* SET IT USING Vue's conditional :style binding */
-/* When the container has a set size, your mouse inputs when over the main container,
+/* When the container has a set size, your mouse inputs when over the app,
         even if its closed, do not register with the game */
 /* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner */
-#main-container .tab {
-    height: 90%; /* To prevent bottom from extending past main-container */
+#app .tab {
+    height: 75%; /* To prevent bottom from extending past app */
     width: 100%;
     overflow: auto;
 }
@@ -330,19 +416,19 @@ td.dummy-column {
 }
 
 /* makes number/text inputs and textareas and editor buttons transparent */
-#main-container input[type="number"]:not(.verte__input), 
-#main-container input[type="text"]:not(.verte__input),
-#main-container textarea,
+#app input[type="number"]:not(.verte__input), 
+#app input[type="text"]:not(.verte__input),
+#app textarea,
 .tiger-btn {
     background-color:transparent;
 }
 /* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
 /* from https://stackoverflow.com/a/57465026 */
 /* also making all text bold and Ubuntu, so its easier to see */
-#main-container, 
-#main-container input[type="number"]:not(.verte__input),
-#main-container input[type="text"]:not(.verte__input),
-#main-container textarea,
+#app, 
+#app input[type="number"]:not(.verte__input),
+#app input[type="text"]:not(.verte__input),
+#app textarea,
 .tiger-btn {
     text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
     color: white;
@@ -351,22 +437,22 @@ td.dummy-column {
     /* no need to import Ubuntu font, Arras's default styling will take over in-game and provide it for free */
 }
 
-/* makes the items more easy to visually separate from each other and the borders of the main-container */
-#main-container table, 
-#main-container th, 
-#main-container td {
+/* makes the items more easy to visually separate from each other and the borders of the app */
+#app table, 
+#app th, 
+#app td {
     border: 1px solid white;
     border-collapse: collapse;
     padding: 10px;
 }
 
 /* forces the number in number inputs to be close to its label on the left */
-#main-container input[type="number"] {
+#app input[type="number"] {
     text-align: left;
 }
 
 /* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
-#main-container input[type="radio"] {
+#app input[type="radio"] {
     width: auto;
 }
 
@@ -375,17 +461,49 @@ td.dummy-column {
     white-space: nowrap;
 }
 
-/* make the tab changing button stay away from the open/close button */
-#tab-btn {
+/* make the tab changing and save theme buttons stay away from the open/close button */
+#tab-btn, #save-btn {
     float: right;
 }
+/* add some extra space below the #save-btn */
+#save-btn {
+    margin-bottom: 10px;
+}
 
-/* make extras tab table stay within main-container */
+/* make extras tab table stay within app */
 #extras table {
     table-layout: fixed;
 }
 #extras textarea {
     width: 100%;
+}
+
+/* make the entire svg theme preview show up
+** and give it a "softer" look */
+#savedThemes svg {
+    height: 130%;
+    border-radius: 5%;
+}
+
+/* make the svg text more visible and reflective of its in-game look */
+#savedThemes svg text {
+    font-family: Ubuntu, sans-serif;
+    font-size: 25px;
+    font-weight: bold;
+    stroke-width: 1;
+    letter-spacing: -1.5px;
+}
+
+/* add some space around the deleteTheme buttons, 
+** and make them half-transparent red
+*/
+#savedThemes .delete-btn {
+    margin: 10px;
+    background-color: rgba(255, 0, 0, 0.7)
+}
+
+#savedThemes .theme-details-container {
+    text-align: center;
 }
 
   `
@@ -412,17 +530,19 @@ var pb = new PromptBoxes({
     }
 });
 
+
 var app = new Vue({
-    el: "#main-container",
+    el: "#app",
 
     components: { Verte }, /* Verte-related */
 
     data: {
-        showApp: true, // applies to the overall app (#main-container)
+        showApp: true, // applies to the overall app (#app)
         currentTab: 'editor', // color pickers tab must be the initial one because otherwise the color pickers break
                                 // other options can be found in the changeTab() function
 
-        config: Arras(), // because this is linked directly to the game's Arras() obj, we don't need a watcher on config or a renderChange() function
+        config: {}, // is filled with Arras(), and then stored currentTheme (config from previous session) on Vue instance creation
+                    // because this is linked directly to the game's Arras() obj, we don't need a watcher on config or a renderChange() function
         themeDetails: {
             name: "", // theme name
             author: "",
@@ -430,17 +550,21 @@ var app = new Vue({
         
         importedTheme: "",
 
-        savedThemes: [], // is synced with GM_ storage using a watcher :: each theme's unique key is its index in this array
-
-        // used to measure how long a user held their click over a button
-        // forcing a click to hold for 5?? seconds prevents accidental theme deletion
-        buttonClickStartTime: 0,
+        // is synced with GM_ storage using a watcher :: each theme's unique key is its index in this array
+        savedThemes: [],
 
         // used to temporarily change button text after being clicked
         wasButtonClicked: {
             importTheme: false,
             exportTiger: false,
             exportBackwardsCompatible: false,
+        },
+
+        // used to ensure user holds down btn for 3 seconds before the functioanlity actually happens
+        // to prevent accidental stray clicks
+        buttonClickStartTime: {
+            deleteTheme: Infinity,
+            saveCurrentTheme: Infinity,
         },
 
         // colorNames is an array of the names of the colors in the array at Arras().themeColor.table, in the same order
@@ -517,13 +641,14 @@ var app = new Vue({
         },
 
         // get the hexadecimal (#abc123) value for the given colorName in the themeColor table
-        getHex(colorName) {
-            return this.config.themeColor.table[ this.colorNames.indexOf(colorName) ];
+        // second optional argument is a themeObj to use in case you want to get a hex for a different theme
+        getHex(colorName, themeObj = this) {
+            return themeObj.config.themeColor.table[ this.colorNames.indexOf(colorName) ];
         },
 
         // move to next tab in tabs array, and then wrap back around to beginning
         changeTab() {
-            var tabs = ['editor', 'extras'];
+            var tabs = ['editor', 'extras', 'savedThemes'];
 
             var currentTabIndex = tabs.indexOf( this.currentTab );
 
@@ -535,12 +660,22 @@ var app = new Vue({
             this.currentTab = tabs[ newTabIndex ];
         },
 
-        // change a button to say that it was clicked for a certain amount of time (currently 3 sec.)
+        // either changes the button's text for 3 seconds, 
+        // or starts a timer to ensure a button is held for 3 seconds before its functionality is run
         indicateClicked(btnName) {
-            this.wasButtonClicked[btnName] = true;
-            setTimeout(() => {
-                this.wasButtonClicked[btnName] = false;
-            }, 1000 * 3);
+            if (btnName === 'deleteTheme' || btnName === 'saveCurrentTheme') {
+                pb.info('Hold button for 3 seconds to ' + btnName)
+                // instead of a boolean, we want to use a numerical timestamp to make sure user holds click for 3 sec
+                // to prevent stray click accidents
+                this.buttonClickStartTime[btnName] = performance.now();
+            }
+            // button text depends on if true or false, this thus changes the button text for 3 seconds
+            else {
+                this.wasButtonClicked[btnName] = true;
+                setTimeout(() => {
+                    this.wasButtonClicked[btnName] = false;
+                }, 1000 * 3);
+            }
         },
 
         // export a theme as either a 'tiger' theme (using edn format) or 'arras' theme (json format, only contains themeColor changes)
@@ -555,8 +690,8 @@ var app = new Vue({
             // this way it'll be easy in the future if we want to add in extra theme types like TIGER_BASE64/* valid base64 */ or TIGER_XML</* valid XML */>
             if (type === 'TIGER_JSON') {
                 themeToExport = {
-                    config: this.config,
                     themeDetails: this.themeDetails,
+                    config: this.config,
                 };
 
                 themeToExport = 'TIGER_JSON' + JSON.stringify(themeToExport);
@@ -590,7 +725,6 @@ var app = new Vue({
             pb.success('Copied to Clipboard!');
         },
 
-        
         // supports both types of arras themes as well as the new TIGER_JSON theme type
         // this function only converts an imported theme string into a js object mirroring this.config/the game's Arras() object
         // but importTheme calls a different function (applyTheme) that will take in a theme obj and change the game's visual properties
@@ -659,42 +793,69 @@ var app = new Vue({
         // because that will remove it being a reference to the actual game's Arras() object
         // similarly, you can only directly change the atomic properties + arrays (not objects)
         applyTheme(themeObj) {
-            this.themeDetails = themeObj.themeDetails;
+            // this function will create a new identical theme to remove reference to original theme object
+            // this prevents future theme modifications from screwing with the original theme
+            var newTheme = JSON.parse( JSON.stringify(themeObj) );
+
+            this.themeDetails = newTheme.themeDetails;
             
-            for (var category in themeObj.config) {
-                for (var property in themeObj.config[category]) {
-                    this.config[category][property] = themeObj.config[category][property];
+            for (var category in newTheme.config) {
+                for (var property in newTheme.config[category]) {
+                    this.config[category][property] = newTheme.config[category][property];
                 }
             }
 
             pb.success('Theme Imported!');
         },
         
-        // saves the current settings in the editor/extras as a new theme
+        // saves the current settings in the editor/extras as a new theme in savedThemes
         saveCurrentTheme() {
-            var currentlySavedThemes = GM_listValues();
-            var themeName = this.themeDetails.name.toLowerCase();
-            
-            // check to make sure that there is no saved theme with the same name && author
-            for (var theme of currentlySavedThemes) {
+            // perforance.now uses milliseconds, so we divide by 1000 to convert to seconds
+            var timeButtonWasHeldFor = (performance.now() - this.buttonClickStartTime.saveCurrentTheme) / 1000;
 
-            }
-
-            GM_setValue()
-        },
-        // delete a theme previously saved
-        // only allow this function to complete if user holds down click for 5 seconds
-        deleteSavedTheme(indexInSavedThemes) {
-            // performance.now() uses milliseconds
-            elapsedClickTime = ( performance.now() - this.buttonClickStartTime ) / 1000;
-            if (elapsedClickTime < 5) {
+            // button held for less than 3 sec
+            if (timeButtonWasHeldFor < 3) {
+                // clear the hold for 3 sec notification
+                pb.clear();
                 return;
             }
-        
-            // remove item from savedThemes
-            this.savedThemes = this.savedThemes.filter(
-                theme => theme.themeDetails.id !== indexInSavedThemes
-            );
+            // no author/name entered
+            if (this.themeDetails.author.trim() === '' || this.themeDetails.name.trim() === '') {
+                pb.error('Enter theme name and author!');
+                return;
+            }
+            
+            // actual theme saving stuff
+            var themeToSave = {
+                themeDetails: this.themeDetails,
+                config: this.config,
+            };
+
+            // create new identical theme to remove reference to the 'this' obj
+            // so that future changes won't modify the theme being saved
+            themeToSave = JSON.parse( JSON.stringify(themeToSave) );
+
+            // add new theme to start of the list
+            this.savedThemes.unshift(themeToSave);
+
+            pb.success('Saved ' + themeToSave.themeDetails.name + ' by ' + themeToSave.themeDetails.author);
+        },
+        // delete a theme previously saved
+        // only allow this function to complete if user holds down click for 3 seconds
+        deleteSavedTheme(indexInSavedThemes) {
+            // perforance.now uses milliseconds, so we divide by 1000 to convert to seconds
+            var timeButtonWasHeldFor = (performance.now() - this.buttonClickStartTime.deleteTheme) / 1000;
+            
+            if (timeButtonWasHeldFor < 3) {
+                // clear the hold click notification
+                pb.clear();
+                return;
+            }
+
+            var deletedThemeDetails = this.savedThemes[indexInSavedThemes].themeDetails;
+            // splice will do the actual deleting
+            this.savedThemes.splice(indexInSavedThemes, 1);
+            pb.success('Deleted ' + deletedThemeDetails.name + ' by ' + deletedThemeDetails.author);
         },
 
 
@@ -807,6 +968,128 @@ var app = new Vue({
         
             return null
         }
+    },
+
+    // function run when Vue instance is first mounted onto the DOM
+    // loads savedThemes from
+    mounted() {
+        // used in case it's users first time using tiger, which means they have no saved themes yet
+        var defaultSavedThemes = [
+            {"themeDetails":{"name":"Light Colors","author":"Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#7adbbc","#b9e87e","#e7896d","#fdf380","#b58efd","#ef99c3","#e8ebf7","#aa9f9e","#ffffff","#484848","#3ca4cb","#8abc3f","#e03e41","#efc74b","#8d6adf","#cc669c","#a7a7af","#726f6f","#dbdbdb","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Dark Colors","author":"Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#8975b7","#1ba01f","#c46748","#b2b224","#7d56c5","#b24fae","#1e1e1e","#3c3a3a","#000000","#e5e5e5","#379fc6","#30b53b","#ff6c6e","#ffc665","#9673e8","#c8679b","#635f5f","#73747a","#11110f","#ffffff"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Natural","author":"Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#76c1bb","#aad35d","#e09545","#ffd993","#939fff","#d87fb2","#c4b6b6","#7f7f7f","#ffffff","#373834","#4f93b5","#00b659","#e14f65","#e5bf42","#8053a0","#b67caa","#998f8f","#494954","#a5b2a5","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Classic","author":"Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#8efffb","#85e37d","#fc7676","#ffeb8e","#b58eff","#f177dd","#cdcdcd","#999999","#ffffff","#525252","#00b0e1","#00e06c","#f04f54","#ffe46b","#768cfc","#be7ff5","#999999","#545454","#c0c0c0","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Forest","author":"Not Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#884aa5","#8c9b3e","#d16a80","#97596d","#499855","#60294f","#ddc6b8","#7e949e","#ffffe8","#665750","#807bb6","#a1be55","#e5b05b","#ff4747","#bac674","#ba78d1","#998866","#529758","#7da060","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Midnight","author":"Not Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#2b9098","#4baa5d","#345678","#cdc684","#89778e","#a85c90","#cccccc","#a7b2b7","#bac6ff","#091f28","#123455","#098765","#000013","#566381","#743784","#b29098","#555555","#649eb7","#444444","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Snow","author":"Not Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#89bfba","#b5d17d","#e5e0e0","#b5bbe5","#939fff","#646de5","#b2b2b2","#7f7f7f","#ffffff","#383835","#aeaeff","#aeffae","#ffaeae","#ffffff","#c3c3d8","#ffb5ff","#cccccc","#a0a0b2","#f2f2f2","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Coral Reef","author":"Not Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#76eec6","#41aa78","#ff7f50","#ffd250","#dc3388","#fa8072","#8b8886","#bfc1c2","#ffffff","#12466b","#4200ae","#0d6338","#dc4333","#fea904","#7b4bab","#5c246e","#656884","#d4d7d9","#3283bc","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Badlands","author":"Not Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#f9cb9c","#f1c232","#38761d","#e69138","#b7b7b7","#78866b","#6aa84f","#b7b7b7","#a4c2f4","#000000","#0c5a9e","#6e8922","#5b0000","#783f04","#591c77","#20124d","#2f1c16","#999999","#543517","#ffffff"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Bleach","author":"Not Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#00ffff","#00ff00","#ff3200","#ffec00","#ff24a7","#ff3cbd","#fff186","#918181","#f1f1f1","#5f5f5f","#0025ff","#00ff00","#ff0000","#fffa23","#3100ff","#d4d3d3","#838383","#4c4c4c","#fffefe","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Space","author":"Not Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#4788f3","#af1010","#ff0000","#82f850","#ffffff","#57006c","#ffffff","#272727","#000000","#7f7f7f","#0e1b92","#0aeb80","#c2b90a","#3e7e8c","#285911","#a9707e","#6f6a68","#2d0738","#000000","#ffffff"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Nebula","author":"Not Neph"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#38b06e","#22882e","#d28e7f","#d5d879","#e084eb","#df3e3e","#f0f2cc","#7d7d7d","#c2c5ef","#161616","#9274e6","#89f470","#e08e5d","#ecdc58","#58cbec","#ea58ec","#7e5713","#303030","#555555","#ffffff"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Pumpkin Skeleton","author":"Road"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#721970","#ff6347","#1b713a","#fdf380","#941100","#194417","#1b713a","#aa9f9e","#fed8b1","#484848","#3ca4cb","#76eec6","#f04f54","#1b713a","#1b713a","#cc669c","#ffffff","#726f6f","#ff9b58","#000000"],"border":"3.3"}}} /* Its supposed to be in quotes (Pumpkin Skeleton border) */
+            ,
+            {"themeDetails":{"name":"Solarized Dark","author":"Road"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#b58900","#2aa198","#cb4b16","#657b83","#eee8d5","#d33682","#e0e2e4","#073642","#ffffff","#000000","#268bd2","#869600","#dc322f","#b58900","#678cb1","#a082bd","#839496","#073642","#002b36","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Desert","author":"Road"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#783b31","#f5deb3","#e17d70","#dfab79","#b9a9bb","#c1938e","#a88e80","#ccb78e","#ffffff","#555555","#007ba7","#2e8b57","#e44d2e","#ddcf70","#5b968f","#856088","#989b9d","#9e8171","#ceb385","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Eggplant","author":"Road"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#e96ba8","#78d4b6","#d6100f","#a39e9b","#e7e9db","#e96ba8","#8d8687","#2b1a29","#ffffff","#2b1a29","#06b6ef","#48b685","#ef6155","#f99b15","#815ba4","#fec418","#b9b6b0","#40113f","#50374d","#000000"],"border":0.5}}}
+            ,
+            {"themeDetails":{"name":"Gruvbox","author":"Road"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#83a598","#8ec07c","#d65d0e","#d79920","#d3869b","#d3869b","#bdae93","#aa9f9e","#ebddd2","#000000","#458588","#98971a","#cc241d","#d79920","#417b58","#b16186","#928374","#000000","#282828","#000000"],"border":"0.6"}}}
+            ,
+            {"themeDetails":{"name":"Depths","author":"Skrialik"},"config":{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#fec700","#b51a00","#ffdbd8","#573400","#b58efd","#cde9b5","#cbf1ff","#aa9f9e","#ffffff","#000000","#002e7a","#375719","#000000","#fff2d5","#f4a4c0","#561029","#c1c1c1","#7a7a7a","#434343","#ffffff"],"border":0.7019607843137254}}}
+            ,
+        ];
+
+        defaultSavedThemes = JSON.stringify(defaultSavedThemes);
+
+        // localStorage returns a string, and I think GM_ storage does too?
+        var tigerSavedThemes = GM_getValue('tigerSavedThemes', defaultSavedThemes);
+        tigerSavedThemes = JSON.parse(tigerSavedThemes);
+
+        // load the stored themes into our savedThemes variable
+        this.savedThemes = tigerSavedThemes;
+
+        console.log('Retrieved the following themes from storage:');
+        console.log(tigerSavedThemes);
+
+        /*----------*/
+        // tigerCurrentTheme stuff starts here:
+
+        // first load the most up-to-date Arras() into config, 
+        // in case new features were added recently that aren't in the saved currentTheme
+        this.config = Arras();
+
+        // Next, load the 'tigerCurrentTheme' if there is one, else use the current game colors
+        // this holds the theme that the user had loaded on their previous game session
+        var tigerCurrentTheme = GM_getValue( 'tigerCurrentTheme', JSON.stringify(Arras()) );
+        tigerCurrentTheme = JSON.parse(tigerCurrentTheme);
+
+        // do same for themeDetails
+        var defaultTigerCurrentThemeDetails = {name: '', author: ''};
+        defaultTigerCurrentThemeDetails =  JSON.stringify(defaultTigerCurrentThemeDetails);
+        var tigerCurrentThemeDetails = GM_getValue( 'tigerCurrentThemeDetails', defaultTigerCurrentThemeDetails);
+        tigerCurrentThemeDetails = JSON.parse(tigerCurrentThemeDetails);
+
+        // this is to get the input to applyTheme into the right format so it will work properly
+        tigerCurrentTheme = {
+            themeDetails: tigerCurrentThemeDetails,
+            config: tigerCurrentTheme,
+        };
+
+        // finally apply the saved theme if there is one to the actual game colors (and this.config as well)
+        this.applyTheme(tigerCurrentTheme);
+
+        console.log('Retrieved and applied this current theme from storage:');
+        console.log(tigerCurrentTheme);
+    },
+
+    // store stuff to storage when they change
+    watch: {
+        // re-save this.savedThemes array to storage's tigerSavedThemes key whenever this.savedThemes changes
+        savedThemes(newVal) {
+            // save new savedThemes array to storage
+            GM_setValue( 'tigerSavedThemes', JSON.stringify(newVal) );
+
+            console.log('Saved the following savedThemes to storage:');
+            console.log(newVal);
+        },
+
+        config: {
+            deep: true,
+            handler: function(newVal) {
+                GM_setValue( 'tigerCurrentTheme', JSON.stringify(newVal) );
+
+                console.log('Saved the following current theme to storage:');
+                console.log(newVal);
+            },
+        },
+
+        // re-save the themeDetails whenever they change
+        // deep:true is because we want to detect if the object's keys change, not if
+        // the object itself is changed to be a reference to a different object
+        themeDetails: {
+            deep: true,
+            handler: function(newVal) {
+                // save new themeDetails object to storage
+                GM_setValue( 'tigerCurrentThemeDetails', JSON.stringify(newVal) );
+
+                console.log('Saved the following themeDetails to storage:');
+                console.log(newVal);
+            },
+        },
     },
 });
 

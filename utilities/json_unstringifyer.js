@@ -5,6 +5,6 @@
 
 console.log( JSON.parse(
 
-    "{\"graphical\":{\"screenshotMode\":false,\"borderChunk\":6,\"barChunk\":5,\"compensationScale\":1.114,\"lowGraphics\":false,\"alphaAnimations\":true,\"inversedRender\":true,\"miterStars\":true,\"miter\":false,\"fontSizeOffset\":0,\"shieldbars\":false,\"renderGrid\":true,\"darkBorders\":false,\"neon\":false},\"gui\":{\"enabled\":true,\"alcoveSize\":200,\"spacing\":20},\"themeColor\":{\"table\":[\"#7adbbc\",\"#b9e87e\",\"#e7896d\",\"#fdf380\",\"#b58efd\",\"#ef99c3\",\"#e8ebf7\",\"#aa9f9e\",\"#ffffff\",\"#484848\",\"#3ca4cb\",\"#8abc3f\",\"#e03e41\",\"#efc74b\",\"#8d6adf\",\"#cc669c\",\"#a7a7af\",\"#726f6f\",\"#dbdbdb\",\"#000000\"],\"border\":0.6509803921568628}}"
-
+    `{"graphical":{"screenshotMode":false,"borderChunk":6,"barChunk":5,"compensationScale":1.114,"lowGraphics":false,"alphaAnimations":true,"inversedRender":true,"miterStars":true,"miter":false,"fontSizeOffset":0,"shieldbars":false,"renderGrid":true,"darkBorders":false,"neon":false,"coloredNest":false},"gui":{"enabled":true,"alcoveSize":200,"spacing":20},"themeColor":{"table":["#7adbbc","#b9e87e","#e7896d","#fdf380","#b58efd","#ef99c3","#e8ebf7","#aa9f9e","#ffffff","#484848","#3ca4cb","#8abc3f","#e03e41","#efc74b","#8d6adf","#cc669c","#a7a7af","#726f6f","#dbdbdb","#000000"],"border":0.6509803921568628}}`
+    
 ))

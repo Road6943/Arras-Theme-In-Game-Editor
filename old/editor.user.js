@@ -32,7 +32,7 @@
 /* IMPORTANT NOTE: use single quotes (') for the majority of stuff as they won't interfere with
 ** either HTML's " double quotes " or the js string interpolation backticks ``
 ** Arras() function is what allows this whole thing to work -- gives current theme values and allows you to set new ones */
-var CONTAINER_ID = 'main-container';
+var CONTAINER_ID = 'app';
 var CANVAS_ID = 'canvas';
 var LAUNCH_KEY = '|';
 
@@ -126,7 +126,7 @@ function getAppHTMLAndCSS() {
 <!-- ::BEGIN::EDITOR::HTML:: -->
 
 
-<div id="main-container">
+<div id="app">
 
 
     <button id="toggle-btn" @click="showEditor = !showEditor">
@@ -190,7 +190,7 @@ function getAppHTMLAndCSS() {
 
                 <tr v-for="[ description, colorName ] in colorDescriptions" >
 
-                    <!-- A "dummy" column, so that the color picker doesn't flow out of the main-container -->
+                    <!-- A "dummy" column, so that the color picker doesn't flow out of the app -->
                     <td class="dummy-column">
                         {{ colorName }}
                         <br>
@@ -223,7 +223,7 @@ function getAppHTMLAndCSS() {
         height: 100%;
         width: 100%;
     }
-    #main-container {
+    #app {
         height: 50%;
         width: 30%;
     }
@@ -243,7 +243,7 @@ function getAppHTMLAndCSS() {
     /* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
     /* from https://stackoverflow.com/a/57465026 */
     /* also making all text bold and Ubuntu, so its easier to see */
-    #main-container {
+    #app {
         text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
         color: white;
         
@@ -251,7 +251,7 @@ function getAppHTMLAndCSS() {
         /* no need to import Ubuntu font, Arras's default styling will take over in-game and provide it for free */
     }
 
-    /* makes the items more easy to visually separate from each other and the borders of the main-container */
+    /* makes the items more easy to visually separate from each other and the borders of the app */
     table, th, td {
         border: 1px solid black;
         border-collapse: collapse;
@@ -259,7 +259,7 @@ function getAppHTMLAndCSS() {
     }
 
     /* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
-    #main-container input[type="radio"] {
+    #app input[type="radio"] {
         width: auto;
     }
 
@@ -274,7 +274,7 @@ function runAppJS() {
     /* ::BEGIN::EDITOR::JS:: */
 
     var app = new Vue({
-        el: "#main-container",
+        el: "#app",
 
         data: {
             showEditor: true, // if this starts out false, then the color pickers break when used with v-show, and you'll have to use the (very) inefficient v-if instead, which causes a noticable momentary lag in the game

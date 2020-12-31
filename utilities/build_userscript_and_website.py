@@ -12,10 +12,10 @@ filepaths = {
         "website": "src/boilerplate/website_boilerplate.html",
         "userscript": "src/boilerplate/userscript_boilerplate.js"
     },
-    "editor": {
-        "html": "src/editor/editor.html",
-        "css": "src/editor/editor.css",
-        "js": "src/editor/editor.js"
+    "app": {
+        "html": "src/app/app.html",
+        "css": "src/app/app.css",
+        "js": "src/app/app.js"
     }
 }
 
@@ -31,13 +31,13 @@ def build_userscript():
 
     with \
         open( filepaths["boilerplate"]["userscript"] ) as userscript_boilerplate, \
-        open( filepaths["editor"]["html"] ) as editor_html, \
-        open( filepaths["editor"]["css"] ) as editor_css, \
-        open( filepaths["editor"]["js"] ) as editor_js \
+        open( filepaths["app"]["html"] ) as app_html, \
+        open( filepaths["app"]["css"] ) as app_css, \
+        open( filepaths["app"]["js"] ) as app_js \
     :
         # the editor_* variable names would normally have red underlines, but that's because I use eval to retrieve them
         # this useless string is so I can get rid of the annoying red underlines from variables not being used 
-        f"""###{editor_html}###{editor_css}###{editor_js}###"""
+        f"""###{app_html}###{app_css}###{app_js}###"""
         
         u_b = userscript_boilerplate.read()
         matches = re.findall( pattern, u_b )
@@ -55,15 +55,15 @@ def build_userscript():
 def build_website():
     with \
         open( filepaths["boilerplate"]["website"] ) as website_boilerplate, \
-        open( filepaths["editor"]["html"] ) as editor_html, \
-        open( filepaths["editor"]["css"] ) as editor_css, \
-        open( filepaths["editor"]["js"] ) as editor_js \
+        open( filepaths["app"]["html"] ) as app_html, \
+        open( filepaths["app"]["css"] ) as app_css, \
+        open( filepaths["app"]["js"] ) as app_js \
     :
         combined_html = f"""
             { website_boilerplate.read() }
-            { editor_html.read() }
-            <style> { editor_css.read() } </style>
-            <script> { editor_js.read() } </script>
+            { app_html.read() }
+            <style> { app_css.read() } </style>
+            <script> { app_js.read() } </script>
         """
         return combined_html
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.5
 // @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
@@ -13,16 +13,21 @@
 // @resource     VERTE_CSS https://cdn.jsdelivr.net/npm/verte@0.0.12/dist/verte.css
 // @require      https://unpkg.com/prompt-boxes@2.0.6/src/js/prompt-boxes.js
 // @resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
+// @require      https://unpkg.com/konva@4.0.0/konva.min.js
+// @require      https://cdn.jsdelivr.net/npm/vue-konva@1.0.7/lib/vue-konva.min.js
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM_setClipboard
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_deleteValue
 // ==/UserScript==
 
 
 /* IMPORTANT NOTES: use single quotes (') for the majority of stuff as they won't interfere with
 ** either HTML's " double quotes " or the js string interpolation backticks ``
 ** Arras() function is what allows this whole thing to work -- gives current theme values and allows you to set new ones */
-var CONTAINER_ID = 'main-container';
+var CONTAINER_ID = 'app';
 var CANVAS_ID = 'canvas';
 var LAUNCH_BTN_ID = 'launch-btn';
 
@@ -108,20 +113,20 @@ function getUserscriptSpecificCSS() {
 // paste the vue js html code into here, but NOT the script tag stuff or the style tag stuff
 function getAppHTML() {
   return `
-    //INSERT editor_html HERE//
+    //INSERT app_html HERE//
   `
 }
 
 function getAppCSS() {
   return `
-    //INSERT editor_css HERE//
+    //INSERT app_css HERE//
   `
 }
 
 // paste the vue js <script> js </script> code into herexs
 function runAppJS() {
 
-  //INSERT editor_js HERE//
+  //INSERT app_js HERE//
 }
 
 

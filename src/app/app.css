@@ -1,0 +1,118 @@
+/*
+    This file contains the css (non-userscript specific or library-imported) that makes the editor appear and then look presentable
+*/
+
+/* These make sure the editor doesn't take up the whole screen
+** and instead stays in a nice neat tiny box */
+html,body {
+    height: 100%;
+    width: 100%;
+}
+
+/* DO NOT SET HEIGHT/WIDTH/OVERFLOW FOR app IN HERE (CSS FILE) */
+/* SET IT USING Vue's conditional :style binding */
+/* When the container has a set size, your mouse inputs when over the app,
+        even if its closed, do not register with the game */
+/* You need to have the container have 0% height & width when closed so the mouse can freely move around the top left corner */
+#app .tab {
+    height: 75%; /* To prevent bottom from extending past app */
+    width: 100%;
+    overflow: auto;
+}
+
+/* dummy column adds space for the color picker to fully expand into */
+/* Verte-related */
+td.dummy-column {
+    width: 100px;
+}
+
+/* makes number/text inputs and textareas and editor buttons transparent */
+#app input[type="number"]:not(.verte__input), 
+#app input[type="text"]:not(.verte__input),
+#app textarea,
+.tiger-btn {
+    background-color:transparent;
+}
+/* adds outline to text so its visible against any background color, # of repeated shadows determines strength of outline */
+/* from https://stackoverflow.com/a/57465026 */
+/* also making all text bold and Ubuntu, so its easier to see */
+#app, 
+#app input[type="number"]:not(.verte__input),
+#app input[type="text"]:not(.verte__input),
+#app textarea,
+.tiger-btn {
+    text-shadow: 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black, 0 0 1px black;
+    color: white;
+    
+    font-weight: bold;
+    /* no need to import Ubuntu font, Arras's default styling will take over in-game and provide it for free */
+}
+
+/* makes the items more easy to visually separate from each other and the borders of the app */
+#app table, 
+#app th, 
+#app td {
+    border: 1px solid white;
+    border-collapse: collapse;
+    padding: 10px;
+}
+
+/* forces the number in number inputs to be close to its label on the left */
+#app input[type="number"] {
+    text-align: left;
+}
+
+/* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
+#app input[type="radio"] {
+    width: auto;
+}
+
+/* force text inside toggle-btn to stay in 1 line */
+#toggle-btn {
+    white-space: nowrap;
+}
+
+/* make the tab changing and save theme buttons stay away from the open/close button */
+#tab-btn, #save-btn {
+    float: right;
+}
+/* add some extra space below the #save-btn */
+#save-btn {
+    margin-bottom: 10px;
+}
+
+/* make extras tab table stay within app */
+#extras table {
+    table-layout: fixed;
+}
+#extras textarea {
+    width: 100%;
+}
+
+/* make the entire svg theme preview show up
+** and give it a "softer" look */
+#savedThemes svg {
+    height: 130%;
+    border-radius: 5%;
+}
+
+/* make the svg text more visible and reflective of its in-game look */
+#savedThemes svg text {
+    font-family: Ubuntu, sans-serif;
+    font-size: 25px;
+    font-weight: bold;
+    stroke-width: 1;
+    letter-spacing: -1.5px;
+}
+
+/* add some space around the deleteTheme buttons, 
+** and make them half-transparent red
+*/
+#savedThemes .delete-btn {
+    margin: 10px;
+    background-color: rgba(255, 0, 0, 0.7)
+}
+
+#savedThemes .theme-details-container {
+    text-align: center;
+}
