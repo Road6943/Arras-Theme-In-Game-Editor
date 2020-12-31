@@ -506,6 +506,13 @@ td.dummy-column {
     text-align: center;
 }
 
+/* main verte container 
+    -- add some space between its left and the #app container's left */
+/* Verte-related */
+[class="verte__menu-origin verte__menu-origin--bottom verte__menu-origin--active"] {
+    margin-left: 25px;
+}
+
   `
 }
 
@@ -1067,16 +1074,6 @@ var app = new Vue({
             console.log(newVal);
         },
 
-        config: {
-            deep: true,
-            handler: function(newVal) {
-                GM_setValue( 'tigerCurrentTheme', JSON.stringify(newVal) );
-
-                console.log('Saved the following current theme to storage:');
-                console.log(newVal);
-            },
-        },
-
         // re-save the themeDetails whenever they change
         // deep:true is because we want to detect if the object's keys change, not if
         // the object itself is changed to be a reference to a different object
@@ -1086,10 +1083,23 @@ var app = new Vue({
                 // save new themeDetails object to storage
                 GM_setValue( 'tigerCurrentThemeDetails', JSON.stringify(newVal) );
 
-                console.log('Saved the following themeDetails to storage:');
+                console.log('Saved the following currentThemeDetails to storage:');
                 console.log(newVal);
             },
         },
+    },
+
+    // since config is so heavily nested, the deep:true stuff isn't working for it 
+    // (in the userscript and game at least, the website seems to work fine for some reason (maybe because website's config isn't a reference to the actual game config object)??)
+    // so instead, we grab and store its value from the Arras() object right before the page unloads (this won't work for the website though because it's Arras() object doesn't change)
+    created() {
+        // need to use Arras() object because Vue instance won't exist at this point in time
+        window.addEventListener("beforeunload", function() {
+            GM_setValue('tigerCurrentTheme', JSON.stringify(Arras()) );
+
+            console.log('Saved the following currentTheme to storage:');
+            console.log( JSON.stringify(Arras()) );
+        });
     },
 });
 

@@ -116,3 +116,10 @@ td.dummy-column {
 #savedThemes .theme-details-container {
     text-align: center;
 }
+
+/* main verte container 
+    -- add some space between its left and the #app container's left */
+/* Verte-related */
+[class="verte__menu-origin verte__menu-origin--bottom verte__menu-origin--active"] {
+    margin-left: 25px;
+}
