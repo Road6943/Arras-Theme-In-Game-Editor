@@ -62,11 +62,7 @@
                     </td>
 
                     <td v-else-if="getType(val) === 'boolean' ">
-                        <label>true:</label>
-                        <input type="radio" :name="key" :value="true" v-model="config[category][key]">
-                        <br>
-                        <label>false:</label>
-                        <input type="radio" :name="key" :value="false" v-model="config[category][key]">
+                        <input type="checkbox" v-model="config[category][key]" >
                     </td>
 
                     <td v-else>

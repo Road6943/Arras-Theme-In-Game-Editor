@@ -177,11 +177,7 @@ function getAppHTML() {
                     </td>
 
                     <td v-else-if="getType(val) === 'boolean' ">
-                        <label>true:</label>
-                        <input type="radio" :name="key" :value="true" v-model="config[category][key]">
-                        <br>
-                        <label>false:</label>
-                        <input type="radio" :name="key" :value="false" v-model="config[category][key]">
+                        <input type="checkbox" v-model="config[category][key]" >
                     </td>
 
                     <td v-else>
@@ -449,11 +445,6 @@ td.dummy-column {
 /* forces the number in number inputs to be close to its label on the left */
 #app input[type="number"] {
     text-align: left;
-}
-
-/* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
-#app input[type="radio"] {
-    width: auto;
 }
 
 /* force text inside toggle-btn to stay in 1 line */

@@ -62,11 +62,6 @@ td.dummy-column {
     text-align: left;
 }
 
-/* forces the radio buttons and their labels to be in 1 line right next to each other, not spread apart across multiple lines */
-#app input[type="radio"] {
-    width: auto;
-}
-
 /* force text inside toggle-btn to stay in 1 line */
 #toggle-btn {
     white-space: nowrap;
