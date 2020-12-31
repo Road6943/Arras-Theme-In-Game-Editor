@@ -22,14 +22,14 @@ A userscript that can be used in-game (while playing Arras.io) in order to modif
 
 **Possible plans for the future:**
 + maybe change svg stuff to Konva in case it doesn't play well with arras's css
-+ add more default theme options maybe (ask around on discord)
-+ find the authors of all the Not Neph themes and give them proper credit
 + remove Konva from boilerplate files if it turns out I don't need it after all
 + maybe remove the button text changing stuff if it turns out to be not necessary
 + make top bar of #app (#app:not(.tab)) slightly darker than rest of #app to set it apart
++ add more default theme options maybe (ask around on discord)
 + add a video explanation of tiger to demonstrate all its features and make the readme page prettier
 + add a dedicated installation page to link people to (maybe add to greasyfork as well??)
 + Add buttons for Random Theme, Random Everything (all settings), Rainbow Theme (colors change over time through color spectrum -- maybe add slider to control this), Gradient changer?? (allow users to pick colors and certain timespan and have the colors change between them over that timespan)
 + upgrade version number, and then share with the beta testers before 2021
 + get feedback after a week, and make changes accordingly (don't forget to increment version number)
 + add a dedicated "edit theme" button for each saved theme -- so that users can make changes to a specific theme instead of (currently) having to make a copy of the theme, edit the copy, and then delete the original 
++ add share to /r/arrasThemes button, to provide a centralized theme sharing hub (and renovate that sub a bit, like maybe change the rules for that subreddit to allow text posts and other changes)
