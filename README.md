@@ -15,7 +15,7 @@ A userscript that can be used in-game (while playing Arras.io) in order to modif
 
 **How to Upgrade to a Newer Version:**
 1. Go to [this link right here](https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js), and you should see a Tampermonkey tab appear. 
-2. Click "Reinstall" to upgrade to a newer version.
+2. Click "Update" or "Reinstall" to upgrade to a newer version.
 3. Congrats! You're done! You can now return to playing [arras.io](https://arras.io/)!
 
 ---
