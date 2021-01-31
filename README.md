@@ -33,3 +33,12 @@ A userscript that can be used in-game (while playing Arras.io) in order to modif
 + get feedback after a week, and make changes accordingly (don't forget to increment version number)
 + add a dedicated "edit theme" button for each saved theme -- so that users can make changes to a specific theme instead of (currently) having to make a copy of the theme, edit the copy, and then delete the original 
 + add share to /r/arrasThemes button, to provide a centralized theme sharing hub (and renovate that sub a bit, like maybe change the rules for that subreddit to allow text posts and other changes)
+
+---
+
+**Developer Instructions:**
+1. Only edit files in the src directory, not final
+2. Once you are done making changes, run the python script in the utilities folder
+3. This script will automatically combine the src files together and paste the combined contents into the .user.js file(the finished userscript) and the .html file (the website version for easier ui development)
+4. The script will also copy the userscript to your clipboard (make sure you do `pip install pyperclip` if it doesn't work)
+5. Paste the copied userscript into your userscript manager (Tampermonkey, etc...) and play arras to see the result!

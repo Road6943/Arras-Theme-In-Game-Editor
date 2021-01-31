@@ -34,7 +34,7 @@
             @mousedown="indicateClicked('saveCurrentTheme') "
             @mouseup="saveCurrentTheme()"
     >
-        Save Current Theme
+        Save Current Theme (Hold for 3s)
     </button>
 
     <div id="editor" class="tab" v-show="showApp && currentTab === 'editor' ">
@@ -117,6 +117,13 @@
     </div>
 
     <div id="extras" class="tab" v-show="showApp && currentTab === 'extras' ">
+        
+        <button id="feedback-btn" class="tiger-btn"
+            onclick="window.open('https://forms.gle/M425vYsiBqZzjdRx6','_blank')"
+        >
+            Give Feedback! (Opens in New Tab)
+        </button>
+
         <table>
             <tr>
                 <td>
@@ -206,7 +213,7 @@
                                         /* only deletes if mouseup timestamp - mousedown timestamp >= 3 seconds, to prevent accidental deletion */ 
                                         " 
                     >
-                        Delete Theme
+                        Delete Theme (Hold for 3s)
                     </button>
                 </td>
                 <td>

@@ -90,7 +90,11 @@ function launchApp() {
 // a little hack to detect if the user is currently in game or on the main landing page
 function userIsCurrentlyInGame() {
   // playerNameInput is disabled in-game, but enabled on the main landing page (because thats how players enter their name)
-  return document.getElementById("playerNameInput").hasAttribute("disabled");
+  //return document.getElementById("playerNameInput").hasAttribute("disabled");
+
+  // ^^ that no longer works, so heres a new hack:
+  // Arras().themeColor is undefined on the landing page, but has a value in-game
+  return (Arras().themeColor !== undefined)
 }
 
 // this is css that allows the the userscript to properly show the editor above the game canvas

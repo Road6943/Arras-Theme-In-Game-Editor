@@ -90,7 +90,11 @@ function launchApp() {
 // a little hack to detect if the user is currently in game or on the main landing page
 function userIsCurrentlyInGame() {
   // playerNameInput is disabled in-game, but enabled on the main landing page (because thats how players enter their name)
-  return document.getElementById("playerNameInput").hasAttribute("disabled");
+  //return document.getElementById("playerNameInput").hasAttribute("disabled");
+
+  // ^^ that no longer works, so heres a new hack:
+  // Arras().themeColor is undefined on the landing page, but has a value in-game
+  return (Arras().themeColor !== undefined)
 }
 
 // this is css that allows the the userscript to properly show the editor above the game canvas
@@ -149,7 +153,7 @@ function getAppHTML() {
             @mousedown="indicateClicked('saveCurrentTheme') "
             @mouseup="saveCurrentTheme()"
     >
-        Save Current Theme
+        Save Current Theme (Hold for 3s)
     </button>
 
     <div id="editor" class="tab" v-show="showApp && currentTab === 'editor' ">
@@ -232,6 +236,13 @@ function getAppHTML() {
     </div>
 
     <div id="extras" class="tab" v-show="showApp && currentTab === 'extras' ">
+        
+        <button id="feedback-btn" class="tiger-btn"
+            onclick="window.open('https://forms.gle/M425vYsiBqZzjdRx6','_blank')"
+        >
+            Give Feedback! (Opens in New Tab)
+        </button>
+
         <table>
             <tr>
                 <td>
@@ -321,7 +332,7 @@ function getAppHTML() {
                                         /* only deletes if mouseup timestamp - mousedown timestamp >= 3 seconds, to prevent accidental deletion */ 
                                         " 
                     >
-                        Delete Theme
+                        Delete Theme (Hold for 3s)
                     </button>
                 </td>
                 <td>
