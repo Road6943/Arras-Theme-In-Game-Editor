@@ -453,6 +453,29 @@ var app = new Vue({
             } catch (e) {}
         
             return null
+        },
+
+
+        // make the game colors random
+        randomizeColors() {
+            function getRandomColor() {
+                const chars = "0123456789ABCDEF";
+                let color = "#";
+                
+                for (let i = 0; i < 6; ++i) {
+                    let charIndex = Math.floor(Math.random() * 16);
+                    color += chars[charIndex];
+                }
+                return color;
+            }
+
+            const numColors = this.colorNames.length;
+            const newColors = [];
+            for (let i = 0; i < numColors; i++) {
+                newColors.push( getRandomColor() );
+            }
+            this.config.themeColor.table = newColors;
+            console.log(`Game colors changed to [${newColors.join(", ")}]`);
         }
     },
 

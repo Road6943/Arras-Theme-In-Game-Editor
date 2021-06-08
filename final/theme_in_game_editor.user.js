@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      1.6.1
 // @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
@@ -232,6 +232,10 @@ function getAppHTML() {
                     </td>
                 </tr>
             </table>
+        </div>
+
+        <div id="special-color-buttons-container">
+            <button class="tiger-btn" @click="randomizeColors">Randomize Colors</button>
         </div>
     </div>
 
@@ -513,6 +517,11 @@ td.dummy-column {
 /* Verte-related */
 [class="verte__menu-origin verte__menu-origin--bottom verte__menu-origin--active"] {
     margin-left: 25px;
+}
+
+#special-color-buttons-container {
+    text-align: center;
+    margin-top: 10px;
 }
 
   `
@@ -976,6 +985,29 @@ var app = new Vue({
             } catch (e) {}
         
             return null
+        },
+
+
+        // make the game colors random
+        randomizeColors() {
+            function getRandomColor() {
+                const chars = "0123456789ABCDEF";
+                let color = "#";
+                
+                for (let i = 0; i < 6; ++i) {
+                    let charIndex = Math.floor(Math.random() * 16);
+                    color += chars[charIndex];
+                }
+                return color;
+            }
+
+            const numColors = this.colorNames.length;
+            const newColors = [];
+            for (let i = 0; i < numColors; i++) {
+                newColors.push( getRandomColor() );
+            }
+            this.config.themeColor.table = newColors;
+            console.log(`Game colors changed to [${newColors.join(", ")}]`);
         }
     },
 

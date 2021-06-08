@@ -118,3 +118,8 @@ td.dummy-column {
 [class="verte__menu-origin verte__menu-origin--bottom verte__menu-origin--active"] {
     margin-left: 25px;
 }
+
+#special-color-buttons-container {
+    text-align: center;
+    margin-top: 10px;
+}
