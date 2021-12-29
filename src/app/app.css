@@ -87,8 +87,14 @@ td.dummy-column {
 /* make the entire svg theme preview show up
 ** and give it a "softer" look */
 #savedThemes svg {
-    height: 130%;
+    height: 250%;
     border-radius: 5%;
+}
+/* make the full svg preview show up instead of being cut off at the bottom */
+#savedThemes .theme-preview-container {
+    height: 100px;
+    /* Align svg to top of cell */
+    vertical-align: top;
 }
 
 /* make the svg text more visible and reflective of its in-game look */
@@ -110,6 +116,14 @@ td.dummy-column {
 
 #savedThemes .theme-details-container {
     text-align: center;
+
+    /* To prevent really long theme names or author names from 
+        fully displaying in one linemaking it impossible to scroll 
+        rightwards to the theme previews 
+        
+        Instead, they are forced to wrap, which generates a really tall cell */
+    word-break: break-all;
+    min-width: 150px;
 }
 
 /* main verte container 
