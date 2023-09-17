@@ -1,6 +1,21 @@
-# Like TIGER? Then try [RoadRayge](https://github.com/Road6943/RoadRayge)!
-*All the features you love + more in a sleek, modern design!*
 
+# IMPORTANT: TIGER will no longer be updated. Please switch to [RoadRayge](https://github.com/Road6943/RoadRayge)!
+ All of your TIGER themes (starting with TIGER_JSON) can be imported directly into RoadRayge.
+
+RoadRayge has a sleeker UI and additional features not available in TIGER, such as Theme Filtering/Searching, Cursor Customization, Swapping Colors Within A Theme, and more!
+
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
 ---
 
 # Arras.io Theme In-Game Editor
