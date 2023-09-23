@@ -193,6 +193,20 @@
                     </button>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    Export all saved themes. This can be used to migrate to RoadRayge.
+                </td>
+                <td>
+                    <button class="tiger-btn" @click="indicateClicked('exportAll'); exportTheme('all')">
+                        {{ 
+                            wasButtonClicked.exportAll
+                            ? 'Copied to clipboard!'
+                            : 'Export All Saved Themes'
+                        }}
+                    </button>
+                </td>
+            </tr>
         </table>
 
         

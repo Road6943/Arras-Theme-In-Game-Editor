@@ -44,6 +44,7 @@ var app = new Vue({
             importTheme: false,
             exportTiger: false,
             exportBackwardsCompatible: false,
+            exportAll: false,
         },
 
         // used to ensure user holds down btn for 3 seconds before the functioanlity actually happens
@@ -194,6 +195,10 @@ var app = new Vue({
                 }
 
                 themeToExport = JSON.stringify(themeToExport);
+            }
+            // get list of all saved themes, for export to RoadRayge
+            else if (type === 'all') {
+                themeToExport = 'TIGER_LIST' + GM_getValue('tigerSavedThemes');
             }
             else {
                 console.log('unsupported export theme type');
