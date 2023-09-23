@@ -9,7 +9,7 @@ RoadRayge has a sleeker UI and additional features not available in TIGER, such 
 2. The upgrade adds a button to export all your saved themes. You can find this button underneath the other theme export buttons. Click it and all your saved themes will be saved to your clipboard (It will start with TIGER_LIST).
 3. Now that all the themes are copied to your clipboard, paste it into a text file or Discord or somewhere to keep them safe.
 4. Turn TIGER off via your Tampermonkey settings.
-5. Install RoadRayge using the instructions [here](https://github.com/Road6943/RoadRayge).
+5. Install RoadRayge using the instructions [here](https://github.com/Road6943/RoadRayge). If you already have RoadRayge installed, then upgrade it to the latest version by clicking [here](https://github.com/Road6943/RoadRayge/raw/main/RoadRayge.user.js).
 6. Make sure TIGER is turned off. TIGER and RoadRayge cannot both be active at the same time.
 7. Reload Arras.io and enter a game.
 8. In the top right corner, you will see a gear. Click it to open RoadRayge.
