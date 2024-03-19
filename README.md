@@ -3,6 +3,8 @@ Arras will get a built-in theme editor on that date. To migrate all your themes 
 
 Once you have done so, please navigate to the 2nd tab and click the button labelled `Download All Themes In V1 Format` 
 
+You can also convert individual themes with [this tool](https://codepen.io/cx88/pen/rNbVGmQ) made by CX!
+
 Thank you for using TIGER all these years. It has been wonderful seeing the themes you have all created, and I hope to see many more incredible themes with the launch of the new built-in theme editor!
 
 \
