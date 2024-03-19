@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.7.1
+// @version      1.8
 // @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
-// @author       Road#6943
+// @author       @road6943 on Discord
 // @match        *://arras.io/
 // @match        *://arras.netlify.app/
 // @require      https://cdn.jsdelivr.net/npm/vue@2.6.12
@@ -15,6 +15,7 @@
 // @resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
 // @require      https://unpkg.com/konva@4.0.0/konva.min.js
 // @require      https://cdn.jsdelivr.net/npm/vue-konva@1.0.7/lib/vue-konva.min.js
+// @require      https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM_setClipboard

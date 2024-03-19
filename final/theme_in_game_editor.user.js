@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.7.1
+// @version      1.8
 // @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
-// @author       Road#6943
+// @author       @road6943 on Discord
 // @match        *://arras.io/
 // @match        *://arras.netlify.app/
 // @require      https://cdn.jsdelivr.net/npm/vue@2.6.12
@@ -15,6 +15,7 @@
 // @resource     PROMPT_BOXES_CSS https://unpkg.com/prompt-boxes@2.0.6/src/css/prompt-boxes.css
 // @require      https://unpkg.com/konva@4.0.0/konva.min.js
 // @require      https://cdn.jsdelivr.net/npm/vue-konva@1.0.7/lib/vue-konva.min.js
+// @require      https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js
 // @grant        GM_getResourceText
 // @grant        GM_addStyle
 // @grant        GM_setClipboard
@@ -268,6 +269,36 @@ function getAppHTML() {
                     >
                 </td>
             </tr>
+<!-- BEGIN EXPORT V1 -->
+            <tr>
+                <td>
+                    Usable in Arras's Built-In Theme Editor.
+                </td>
+                <td>
+                    <button class="tiger-btn golden" @click="indicateClicked('exportV1'); exportTheme('v1')">
+                        {{ 
+                            wasButtonClicked.exportV1
+                            ?  'Copied to clipboard!'
+                            : 'Export V1 Theme' 
+                        }}
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Download file of all saved themes in a format usable with Arras's Built-In Theme Editor.
+                </td>
+                <td>
+                    <button class="tiger-btn golden" @click="indicateClicked('exportV1All'); exportTheme('all-v1')">
+                        {{ 
+                            wasButtonClicked.exportV1All
+                            ?  'Downloaded file!'
+                            : 'Download All Themes In V1 Format' 
+                        }}
+                    </button>
+                </td>
+            </tr>
+<!-- END EXPORT V1 -->
             <tr>
                 <td>
                     <textarea id="import-theme-textarea" v-model="importedTheme" 
@@ -286,7 +317,7 @@ function getAppHTML() {
             </tr>
             <tr>
                 <td>
-                    Best Option. Includes everything. Only works with Tiger (Theme In-Game Editor).
+                    Includes everything. Only works with Tiger (Theme In-Game Editor).
                 </td>
                 <td>
                     <button class="tiger-btn" @click="indicateClicked('exportTiger'); exportTheme('TIGER_JSON')">
@@ -314,14 +345,14 @@ function getAppHTML() {
             </tr>
             <tr>
                 <td>
-                    Export all saved themes. This can be used to migrate to RoadRayge.
+                    Export all saved themes in TIGER_LIST format. This can be used to migrate to RoadRayge.
                 </td>
                 <td>
                     <button class="tiger-btn" @click="indicateClicked('exportAll'); exportTheme('all')">
                         {{ 
                             wasButtonClicked.exportAll
                             ? 'Copied to clipboard!'
-                            : 'Export All Saved Themes'
+                            : 'Export All Themes In TIGER Format'
                         }}
                     </button>
                 </td>
@@ -552,6 +583,10 @@ td.dummy-column {
     margin-top: 10px;
 }
 
+
+.golden {
+    background-color: goldenrod;
+}
   `
 }
 
@@ -605,6 +640,9 @@ var app = new Vue({
             exportTiger: false,
             exportBackwardsCompatible: false,
             exportAll: false,
+            // not gonna rename the tiger all export here bc I don't want to screw anything up
+            exportV1: false,
+            exportV1All: false,
         },
 
         // used to ensure user holds down btn for 3 seconds before the functioanlity actually happens
@@ -757,9 +795,24 @@ var app = new Vue({
                 themeToExport = JSON.stringify(themeToExport);
             }
             // get list of all saved themes, for export to RoadRayge
+            // keeping this as 'all' to avoid messing anything up
             else if (type === 'all') {
                 themeToExport = 'TIGER_LIST' + GM_getValue('tigerSavedThemes');
             }
+
+            // v1 is the new format for arras's built-in theme editor
+            else if (type === 'v1') {
+                // pass in the same obj that tiger conversion uses
+                themeToExport = convertTigerObjToV1Str({
+                    themeDetails: this.themeDetails,
+                    config: this.config,
+                });
+            } else if (type === 'all-v1') {
+                convertAllTigerThemeObjsToV1ThemeStrs();
+                pb.success('Downloaded themes.csv file! Open it in Excel.');
+                return; // return early because we don't need to copy anything to clipboard
+            }
+
             else {
                 console.log('unsupported export theme type');
                 return;
@@ -1192,6 +1245,133 @@ var app = new Vue({
     },
 });
 
+
+
+// Copied and pasted from RoadRayge code, 
+// I don't wanna modify it to fit Vue formatting of Tiger's functions.
+// Only changes: 
+//    - GM.getValue -> GM_getValue and un-asyncing of convertAllTigerThemeObjsToV1ThemeStrs
+//    - name of storage key is now 'tigerSavedThemes'
+/* =============== BEGIN V1 EXPORTING ================= */
+
+
+function convertAllTigerThemeObjsToV1ThemeStrs() {
+	const failedParses = [];
+	const successfulParses = [];
+
+	let tigerThemesList = GM_getValue('tigerSavedThemes'); // RR has GM. but Tiger has GM_
+	tigerThemesList = JSON.parse(tigerThemesList || '[]');
+
+	for (const tigerThemeObj of tigerThemesList) {
+		let convertedThemeStr = null;
+		
+		try {
+			convertedThemeStr = convertTigerObjToV1Str(tigerThemeObj);
+		} 
+		catch {
+			// if non ascii characters present it may mess up conversion
+			// so use encodeURI and try 1 more time
+			try {
+				let { name, author } = tigerThemeObj.themeDetails;
+				tigerThemeObj.themeDetails = {
+					name: encodeURI(name),
+					author: encodeURI(author),
+				};
+				convertedThemeStr = convertTigerObjToV1Str(tigerThemeObj);
+			}
+			catch {
+				failedParses.push(tigerThemeObj);
+			}
+		}
+		
+		successfulParses.push({
+			Name: tigerThemeObj.themeDetails.name,
+			Author: tigerThemeObj.themeDetails.author,
+			Theme: convertedThemeStr,
+		});
+	}
+
+	// handle failed parses
+	for (const fail of failedParses) {
+		console.error(
+		'FAILED to parse!:\n ' 
+		+ JSON.stringify(fail)
+		);
+	}
+
+	// make csv and download it
+	const csvStr = Papa.unparse(successfulParses);
+	downloadToFile("themes.csv", csvStr);
+}
+
+function convertTigerObjToV1Str(tigerThemeObj) {
+	let newThemeObj = tigerThemeObjToArrasThemeObj(tigerThemeObj);
+	let newThemeStr = arrasThemeObjToStringInFormatV1(newThemeObj);
+	return newThemeStr;
+}
+
+// Modified from CX at https://codepen.io/road-to-100k/pen/WNWoPoY
+// original function: parsers.tiger
+// modified to not parse TIGER_JSON string and instead just take obj Tiger uses directly
+function tigerThemeObjToArrasThemeObj(tigerThemeObj) {
+	let {
+	themeDetails: { name, author },
+	config: {
+		graphical: { darkBorders, neon },
+		themeColor: { table, border },
+	},
+	} = tigerThemeObj;
+
+	table = table.map(colorHex => typeof colorHex !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(colorHex) ? 0 : parseInt(colorHex.slice(1), 16))
+
+	table[4] = table[0]
+	table[7] = table[16]
+
+	let blend = Math.min(1, Math.max(0, border))
+
+	return {
+	name: (name || '').trim().slice(0, 40) || 'Unknown Theme',
+	author: (author || '').trim().slice(0, 40),
+	table,
+	specialTable: [table[neon ? 18 : 9]],
+	blend: darkBorders ? 1 : blend,
+	neon,
+	}
+};
+
+// lifted straight from CX - https://codepen.io/road-to-100k/pen/WNWoPoY
+// original function named stringifiers.v1
+function arrasThemeObjToStringInFormatV1(theme) {
+	let { name, author, table, specialTable, blend, neon } = theme
+	
+	let string = '\x6a\xba\xda\xb3\xf0'
+	string += String.fromCharCode(1)
+	string += String.fromCharCode(name.length) + name
+	string += String.fromCharCode(author.length) + author
+	string += String.fromCharCode(table.length)
+	for (let color of table) string += String.fromCharCode(color >> 16, (color >> 8) & 0xff, color & 0xff)
+	string += String.fromCharCode(specialTable.length)
+	for (let color of specialTable) string += String.fromCharCode(color >> 16, (color >> 8) & 0xff, color & 0xff)
+	string += String.fromCharCode(blend >= 1 ? 255 : blend < 0 ? 0 : Math.floor(blend * 0x100))
+	string += String.fromCharCode(neon ? 1 : 0)
+	return btoa(string).replace(/=+/, '')
+};
+
+// https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
+function downloadToFile(filename, text) {
+	var element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+	element.setAttribute('download', filename);
+
+	element.style.display = 'none';
+	document.body.appendChild(element);
+
+	element.click();
+
+	document.body.removeChild(element);
+}
+
+/* ============== END V1 EXPORTING =============== */
 }
 
 

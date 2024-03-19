@@ -1,3 +1,25 @@
+# TIGER will shut down on April 22, 2024
+Arras will get a built-in theme editor on that date. To migrate all your themes to the format used by the new theme editor, please upgrade your TIGER to the latest version by clicking this [link](https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js)
+
+Once you have done so, please navigate to the 2nd tab and click the button labelled `Download All Themes In V1 Format` 
+
+Thank you for using TIGER all these years. It has been wonderful seeing the themes you have all created, and I hope to see many more incredible themes with the launch of the new built-in theme editor!
+
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+---
+
+
 
 # IMPORTANT: TIGER will no longer be updated. Please switch to [RoadRayge](https://github.com/Road6943/RoadRayge)!
  All of your TIGER themes (starting with TIGER_JSON) can be imported directly into RoadRayge.
@@ -74,3 +96,4 @@ A userscript that can be used in-game (while playing Arras.io) in order to modif
 3. This script will automatically combine the src files together and paste the combined contents into the .user.js file(the finished userscript) and the .html file (the website version for easier ui development)
 4. The script will also copy the userscript to your clipboard (make sure you do `pip install pyperclip` if it doesn't work)
 5. Paste the copied userscript into your userscript manager (Tampermonkey, etc...) and play arras to see the result!
+# New Document

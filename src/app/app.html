@@ -149,6 +149,36 @@
                     >
                 </td>
             </tr>
+<!-- BEGIN EXPORT V1 -->
+            <tr>
+                <td>
+                    Usable in Arras's Built-In Theme Editor.
+                </td>
+                <td>
+                    <button class="tiger-btn golden" @click="indicateClicked('exportV1'); exportTheme('v1')">
+                        {{ 
+                            wasButtonClicked.exportV1
+                            ?  'Copied to clipboard!'
+                            : 'Export V1 Theme' 
+                        }}
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Download file of all saved themes in a format usable with Arras's Built-In Theme Editor.
+                </td>
+                <td>
+                    <button class="tiger-btn golden" @click="indicateClicked('exportV1All'); exportTheme('all-v1')">
+                        {{ 
+                            wasButtonClicked.exportV1All
+                            ?  'Downloaded file!'
+                            : 'Download All Themes In V1 Format' 
+                        }}
+                    </button>
+                </td>
+            </tr>
+<!-- END EXPORT V1 -->
             <tr>
                 <td>
                     <textarea id="import-theme-textarea" v-model="importedTheme" 
@@ -167,7 +197,7 @@
             </tr>
             <tr>
                 <td>
-                    Best Option. Includes everything. Only works with Tiger (Theme In-Game Editor).
+                    Includes everything. Only works with Tiger (Theme In-Game Editor).
                 </td>
                 <td>
                     <button class="tiger-btn" @click="indicateClicked('exportTiger'); exportTheme('TIGER_JSON')">
@@ -195,14 +225,14 @@
             </tr>
             <tr>
                 <td>
-                    Export all saved themes. This can be used to migrate to RoadRayge.
+                    Export all saved themes in TIGER_LIST format. This can be used to migrate to RoadRayge.
                 </td>
                 <td>
                     <button class="tiger-btn" @click="indicateClicked('exportAll'); exportTheme('all')">
                         {{ 
                             wasButtonClicked.exportAll
                             ? 'Copied to clipboard!'
-                            : 'Export All Saved Themes'
+                            : 'Export All Themes In TIGER Format'
                         }}
                     </button>
                 </td>

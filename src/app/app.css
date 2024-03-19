@@ -137,3 +137,8 @@ td.dummy-column {
     text-align: center;
     margin-top: 10px;
 }
+
+
+.golden {
+    background-color: goldenrod;
+}
