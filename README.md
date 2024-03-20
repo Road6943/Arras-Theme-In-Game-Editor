@@ -1,7 +1,9 @@
 # TIGER will shut down on March 22, 2024
 Arras will get a built-in theme editor on that date. To migrate all your themes to the format used by the new theme editor, please upgrade your TIGER to the latest version by clicking this [link](https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js)
 
-Once you have done so, please navigate to the 2nd tab and click the button labelled `Download All Themes In V1 Format` 
+Once you have done so, please open TIGER, then navigate to the 2nd tab and click the button labelled `Download All Themes In V1 Format` 
+
+After Mar 22, you may instead see a popup that says you can download all your themes by clicking OK.
 
 You can also convert individual themes with [this tool](https://codepen.io/cx88/pen/rNbVGmQ) made by CX!
 

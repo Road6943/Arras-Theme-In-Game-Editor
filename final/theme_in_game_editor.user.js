@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.8
+// @version      1.8.1
 // @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
 // @author       @road6943 on Discord
 // @match        *://arras.io/
+// @match        *://beta.arras.io/
 // @match        *://arras.netlify.app/
 // @require      https://cdn.jsdelivr.net/npm/vue@2.6.12
 // @require      https://cdn.jsdelivr.net/npm/verte
@@ -58,6 +59,19 @@ var LAUNCH_BTN_ID = 'launch-btn';
 // launch the main editor app only if user is in-game (so that the themeColor stuff is actually availiable to grab)
 // also destroy the initial launch-btn at the end of this function because it is no longer needed and is replaced with toggle-btn inside the main Vue app
 function launchApp() {
+  // Coding it like this so ppl can continue using Tiger until its discontinued
+  // 22MAR2024 DISCONTINUE START ~~~
+  if (typeof Arras === 'undefined') {
+    // Allow users to download all their themes in the new v1 format
+    // So they can use them with Arras's built-in theme editor
+    if (confirm("TIGER has been discontinued. Click OK to download all your saved themes.")) {
+      convertAllTigerThemeObjsToV1ThemeStrs();
+    }
+    return;
+    // NOTHING BELOW SHOULD BE RUN ONCE TIGER DISCONTINUED
+  }
+  // 22MAR2024 DISCONTINUE END ~~~
+
   if (!userIsCurrentlyInGame()) {
     alert('You must be in-game to use this!');
     return;
@@ -95,7 +109,14 @@ function userIsCurrentlyInGame() {
 
   // ^^ that no longer works, so heres a new hack:
   // Arras().themeColor is undefined on the landing page, but has a value in-game
-  return (Arras().themeColor !== undefined)
+  try {
+    return (Arras().themeColor !== undefined);
+  } 
+  catch(e) {
+    console.error("Couldn't run (Arras().themeColor !== undefined)")
+    console.error(e.message)
+    return false;
+  }
 }
 
 // this is css that allows the the userscript to properly show the editor above the game canvas
@@ -1244,9 +1265,10 @@ var app = new Vue({
         });
     },
 });
+}
 
 
-
+// PLACING THIS HERE SO IT CAN BE ACCESSED WITHOUT runAppJs RUNNING
 // Copied and pasted from RoadRayge code, 
 // I don't wanna modify it to fit Vue formatting of Tiger's functions.
 // Only changes: 
@@ -1372,6 +1394,3 @@ function downloadToFile(filename, text) {
 }
 
 /* ============== END V1 EXPORTING =============== */
-}
-
-

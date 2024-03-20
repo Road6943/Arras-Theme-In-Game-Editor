@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         🐅 Theme In-Game Editor for Arras.io 🐅
 // @namespace    http://tampermonkey.net/
-// @version      1.8
+// @version      1.8.1
 // @updateURL    https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @downloadURL  https://github.com/Road6943/Arras-Theme-In-Game-Editor/raw/main/final/theme_in_game_editor.user.js
 // @description  Modify the look and feel of your Arras.io game, while you're playing it!
 // @author       @road6943 on Discord
 // @match        *://arras.io/
+// @match        *://beta.arras.io/
 // @match        *://arras.netlify.app/
 // @require      https://cdn.jsdelivr.net/npm/vue@2.6.12
 // @require      https://cdn.jsdelivr.net/npm/verte
@@ -58,6 +59,19 @@ var LAUNCH_BTN_ID = 'launch-btn';
 // launch the main editor app only if user is in-game (so that the themeColor stuff is actually availiable to grab)
 // also destroy the initial launch-btn at the end of this function because it is no longer needed and is replaced with toggle-btn inside the main Vue app
 function launchApp() {
+  // Coding it like this so ppl can continue using Tiger until its discontinued
+  // 22MAR2024 DISCONTINUE START ~~~
+  if (typeof Arras === 'undefined') {
+    // Allow users to download all their themes in the new v1 format
+    // So they can use them with Arras's built-in theme editor
+    if (confirm("TIGER has been discontinued. Click OK to download all your saved themes.")) {
+      convertAllTigerThemeObjsToV1ThemeStrs();
+    }
+    return;
+    // NOTHING BELOW SHOULD BE RUN ONCE TIGER DISCONTINUED
+  }
+  // 22MAR2024 DISCONTINUE END ~~~
+
   if (!userIsCurrentlyInGame()) {
     alert('You must be in-game to use this!');
     return;
@@ -95,7 +109,14 @@ function userIsCurrentlyInGame() {
 
   // ^^ that no longer works, so heres a new hack:
   // Arras().themeColor is undefined on the landing page, but has a value in-game
-  return (Arras().themeColor !== undefined)
+  try {
+    return (Arras().themeColor !== undefined);
+  } 
+  catch(e) {
+    console.error("Couldn't run (Arras().themeColor !== undefined)")
+    console.error(e.message)
+    return false;
+  }
 }
 
 // this is css that allows the the userscript to properly show the editor above the game canvas
@@ -135,3 +156,129 @@ function runAppJS() {
 }
 
 
+// PLACING THIS HERE SO IT CAN BE ACCESSED WITHOUT runAppJs RUNNING
+// Copied and pasted from RoadRayge code, 
+// I don't wanna modify it to fit Vue formatting of Tiger's functions.
+// Only changes: 
+//    - GM.getValue -> GM_getValue and un-asyncing of convertAllTigerThemeObjsToV1ThemeStrs
+//    - name of storage key is now 'tigerSavedThemes'
+/* =============== BEGIN V1 EXPORTING ================= */
+
+
+function convertAllTigerThemeObjsToV1ThemeStrs() {
+	const failedParses = [];
+	const successfulParses = [];
+
+	let tigerThemesList = GM_getValue('tigerSavedThemes'); // RR has GM. but Tiger has GM_
+	tigerThemesList = JSON.parse(tigerThemesList || '[]');
+
+	for (const tigerThemeObj of tigerThemesList) {
+		let convertedThemeStr = null;
+		
+		try {
+			convertedThemeStr = convertTigerObjToV1Str(tigerThemeObj);
+		} 
+		catch {
+			// if non ascii characters present it may mess up conversion
+			// so use encodeURI and try 1 more time
+			try {
+				let { name, author } = tigerThemeObj.themeDetails;
+				tigerThemeObj.themeDetails = {
+					name: encodeURI(name),
+					author: encodeURI(author),
+				};
+				convertedThemeStr = convertTigerObjToV1Str(tigerThemeObj);
+			}
+			catch {
+				failedParses.push(tigerThemeObj);
+			}
+		}
+		
+		successfulParses.push({
+			Name: tigerThemeObj.themeDetails.name,
+			Author: tigerThemeObj.themeDetails.author,
+			Theme: convertedThemeStr,
+		});
+	}
+
+	// handle failed parses
+	for (const fail of failedParses) {
+		console.error(
+		'FAILED to parse!:\n ' 
+		+ JSON.stringify(fail)
+		);
+	}
+
+	// make csv and download it
+	const csvStr = Papa.unparse(successfulParses);
+	downloadToFile("themes.csv", csvStr);
+}
+
+function convertTigerObjToV1Str(tigerThemeObj) {
+	let newThemeObj = tigerThemeObjToArrasThemeObj(tigerThemeObj);
+	let newThemeStr = arrasThemeObjToStringInFormatV1(newThemeObj);
+	return newThemeStr;
+}
+
+// Modified from CX at https://codepen.io/road-to-100k/pen/WNWoPoY
+// original function: parsers.tiger
+// modified to not parse TIGER_JSON string and instead just take obj Tiger uses directly
+function tigerThemeObjToArrasThemeObj(tigerThemeObj) {
+	let {
+	themeDetails: { name, author },
+	config: {
+		graphical: { darkBorders, neon },
+		themeColor: { table, border },
+	},
+	} = tigerThemeObj;
+
+	table = table.map(colorHex => typeof colorHex !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(colorHex) ? 0 : parseInt(colorHex.slice(1), 16))
+
+	table[4] = table[0]
+	table[7] = table[16]
+
+	let blend = Math.min(1, Math.max(0, border))
+
+	return {
+	name: (name || '').trim().slice(0, 40) || 'Unknown Theme',
+	author: (author || '').trim().slice(0, 40),
+	table,
+	specialTable: [table[neon ? 18 : 9]],
+	blend: darkBorders ? 1 : blend,
+	neon,
+	}
+};
+
+// lifted straight from CX - https://codepen.io/road-to-100k/pen/WNWoPoY
+// original function named stringifiers.v1
+function arrasThemeObjToStringInFormatV1(theme) {
+	let { name, author, table, specialTable, blend, neon } = theme
+	
+	let string = '\x6a\xba\xda\xb3\xf0'
+	string += String.fromCharCode(1)
+	string += String.fromCharCode(name.length) + name
+	string += String.fromCharCode(author.length) + author
+	string += String.fromCharCode(table.length)
+	for (let color of table) string += String.fromCharCode(color >> 16, (color >> 8) & 0xff, color & 0xff)
+	string += String.fromCharCode(specialTable.length)
+	for (let color of specialTable) string += String.fromCharCode(color >> 16, (color >> 8) & 0xff, color & 0xff)
+	string += String.fromCharCode(blend >= 1 ? 255 : blend < 0 ? 0 : Math.floor(blend * 0x100))
+	string += String.fromCharCode(neon ? 1 : 0)
+	return btoa(string).replace(/=+/, '')
+};
+
+// https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
+function downloadToFile(filename, text) {
+	var element = document.createElement('a');
+	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+	element.setAttribute('download', filename);
+
+	element.style.display = 'none';
+	document.body.appendChild(element);
+
+	element.click();
+
+	document.body.removeChild(element);
+}
+
+/* ============== END V1 EXPORTING =============== */
